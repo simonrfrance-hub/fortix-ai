@@ -1,0 +1,2812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fortix AI — ROI Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ── Reset & Root ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --forest: #0d1b3e;
+  --forest-mid: #1a2f5e;
+  --forest-light: #2a4a7f;
+  --green: #1d4ed8;
+  --green-light: #3b6ef5;
+  --green-pale: #eff6ff;
+  --green-border: #bfdbfe;
+  --gold: #c8922a;
+  --gold-pale: #fdf3e3;
+  --red: #c0392b;
+  --red-pale: #fdecea;
+  --blue: #1d4ed8;
+  --blue-pale: #eff6ff;
+  --teal: #0369a1;
+  --teal-pale: #e0f2fe;
+  --teal-border: #7dd3fc;
+  --ink: #0f172a;
+  --ink2: #1e3a5f;
+  --ink3: #475569;
+  --smoke: #f1f5f9;
+  --smoke2: #e2e8f0;
+  --smoke3: #cbd5e1;
+  --line: #cbd5e1;
+  --white: #ffffff;
+  --mono: 'DM Mono', monospace;
+  --sans: 'Outfit', sans-serif;
+  --shadow-sm: 0 1px 3px rgba(13,27,62,.06), 0 1px 2px rgba(13,27,62,.04);
+  --shadow: 0 4px 16px rgba(13,27,62,.10), 0 1px 4px rgba(13,27,62,.06);
+  --shadow-lg: 0 12px 40px rgba(13,27,62,.14), 0 4px 12px rgba(13,27,62,.09);
+  --r: 10px;
+  --r2: 16px;
+  --r3: 24px;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--sans);
+  background: var(--smoke);
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ── Top bar ── */
+.topbar {
+  background: var(--forest);
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 12px rgba(0,0,0,.18);
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+.logo-mark {
+  width: 32px; height: 32px;
+  background: var(--green);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.logo-mark svg { width: 18px; height: 18px; }
+.logo-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -.01em;
+}
+.logo-name span { color: var(--green); }
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.topbar-label {
+  font-size: 11px;
+  color: #93c5fd;
+  font-weight: 500;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+/* ── Hero ── */
+.hero {
+  background: linear-gradient(135deg, var(--forest) 0%, #0f2051 60%, #1a2f5e 100%);
+  padding: 56px 32px 48px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -80px; right: -80px;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(29,78,216,.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(29,78,216,.4), transparent);
+}
+.hero-inner { max-width: 860px; margin: 0 auto; }
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(29,78,216,.15);
+  border: 1px solid rgba(29,78,216,.3);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--green);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.hero-dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)} }
+.hero h1 {
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.15;
+  letter-spacing: -.02em;
+  margin-bottom: 14px;
+}
+.hero h1 span { color: var(--green); }
+.hero-sub {
+  font-size: 16px;
+  color: rgba(255,255,255,.65);
+  max-width: 600px;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+/* ── Main layout ── */
+.main {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+}
+
+/* ── Step indicator ── */
+.steps {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 32px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r2);
+  padding: 4px;
+  box-shadow: var(--shadow-sm);
+}
+.step {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: var(--r);
+  cursor: pointer;
+  transition: background .18s;
+  position: relative;
+}
+.step:hover { background: var(--smoke); }
+.step.active { background: var(--forest); }
+.step-num {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--smoke2);
+  border: 1.5px solid var(--line);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 600; color: var(--ink3);
+  flex-shrink: 0;
+  transition: background .18s, border-color .18s, color .18s;
+}
+.step.active .step-num { background: var(--green); border-color: var(--green); color: #fff; }
+.step.done .step-num { background: var(--green-pale); border-color: var(--green-border); color: var(--green); }
+.step-text { line-height: 1.2; }
+.step-label {
+  font-size: 12px; font-weight: 600;
+  color: var(--ink3);
+  transition: color .18s;
+}
+.step.active .step-label { color: #fff; }
+.step.done .step-label { color: var(--green); }
+.step-sub { font-size: 10px; color: var(--ink3); opacity: .7; }
+.step.active .step-sub { color: rgba(255,255,255,.6); opacity: 1; }
+.step-divider { width: 1px; height: 32px; background: var(--line); flex-shrink: 0; }
+
+/* ── Section card ── */
+.card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r2);
+  box-shadow: var(--shadow);
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+.card-head {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--smoke3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.card-head-left { display: flex; align-items: center; gap: 12px; }
+.card-icon {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-size: 16px;
+}
+.card-icon.green { background: var(--green-pale); }
+.card-icon.gold  { background: var(--gold-pale); }
+.card-icon.blue  { background: var(--blue-pale); }
+.card-icon.teal  { background: var(--teal-pale); }
+.card-title { font-size: 15px; font-weight: 600; color: var(--ink); }
+.card-sub   { font-size: 11px; color: var(--ink3); margin-top: 1px; }
+.card-body  { padding: 24px; }
+.card-body-sm { padding: 16px 24px; }
+
+/* ── Form elements ── */
+.form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+.form-grid-4 { grid-template-columns: repeat(4, 1fr); }
+.form-grid-3 { grid-template-columns: repeat(3, 1fr); }
+.form-grid-2 { grid-template-columns: repeat(2, 1fr); }
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink3);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.field input[type=number],
+.field input[type=text],
+.field select {
+  background: var(--smoke);
+  border: 1.5px solid var(--line);
+  border-radius: var(--r);
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--ink);
+  padding: 9px 12px;
+  outline: none;
+  transition: border-color .15s, background .15s, box-shadow .15s;
+  width: 100%;
+  appearance: none;
+}
+.field input:focus, .field select:focus {
+  border-color: var(--green);
+  background: var(--white);
+  box-shadow: 0 0 0 3px rgba(29,78,216,.12);
+}
+.field .hint { font-size: 10px; color: var(--ink3); font-style: italic; }
+.prefix-wrap { display: flex; align-items: stretch; }
+.prefix-wrap .prefix {
+  display: flex; align-items: center; justify-content: center;
+  background: var(--smoke2); border: 1.5px solid var(--line); border-right: none;
+  border-radius: var(--r) 0 0 var(--r);
+  padding: 0 10px; font-family: var(--mono); font-size: 13px;
+  color: var(--ink3); pointer-events: none; white-space: nowrap;
+  min-width: 32px; flex-shrink: 0;
+}
+.prefix-wrap input {
+  border-radius: 0 var(--r) var(--r) 0 !important;
+  flex: 1; min-width: 0;
+}
+.prefix-wrap input:focus { border-color: var(--green) !important; z-index: 1; }
+.suffix-wrap { display: flex; align-items: stretch; }
+.suffix-wrap .suffix {
+  display: flex; align-items: center; justify-content: center;
+  background: var(--smoke2); border: 1.5px solid var(--line); border-left: none;
+  border-radius: 0 var(--r) var(--r) 0;
+  padding: 0 10px; font-family: var(--mono); font-size: 12px;
+  color: var(--ink3); pointer-events: none;
+}
+.suffix-wrap input {
+  border-radius: var(--r) 0 0 var(--r) !important;
+  flex: 1; min-width: 0;
+}
+.suffix-wrap input:focus { border-color: var(--green) !important; z-index: 1; }
+
+/* Select arrow */
+.select-wrap { position: relative; }
+.select-wrap select { padding-right: 32px; }
+.select-wrap::after {
+  content: '';
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  width: 0; height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid var(--ink3);
+  pointer-events: none;
+}
+
+/* ── Package selector cards ── */
+.pkg-card {
+  border: 2px solid var(--line);
+  border-radius: var(--r2);
+  padding: 16px;
+  cursor: pointer;
+  background: var(--smoke);
+  transition: border-color .15s, background .15s, box-shadow .15s;
+  position: relative;
+  user-select: none;
+}
+.pkg-card:hover { border-color: var(--green-border); background: var(--green-pale); }
+.pkg-card.active { border-color: var(--green); background: var(--green-pale); box-shadow: 0 0 0 3px rgba(29,78,216,.12); }
+.pkg-card.pkg-enterprise { border-color: #e0c870; background: var(--gold-pale); }
+.pkg-card.pkg-enterprise:hover { border-color: var(--gold); }
+.pkg-card.pkg-enterprise.active { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(200,146,42,.15); }
+.pkg-name { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+.pkg-price { font-family: var(--mono); font-size: 20px; font-weight: 500; color: var(--green); margin-bottom: 8px; }
+.pkg-price span { font-size: 11px; color: var(--ink3); font-family: var(--sans); }
+.pkg-card.pkg-enterprise .pkg-price { color: var(--gold); }
+.pkg-detail { font-size: 11px; color: var(--ink3); margin-bottom: 3px; }
+.pkg-detail strong { color: var(--ink2); }
+.pkg-check {
+  position: absolute; top: 12px; right: 12px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--line); display: flex; align-items: center; justify-content: center;
+  transition: background .15s;
+}
+.pkg-card.active .pkg-check { background: var(--green); }
+.pkg-card.pkg-enterprise.active .pkg-check { background: var(--gold); }
+.pkg-check svg { display: none; }
+.pkg-card.active .pkg-check svg { display: block; }
+
+/* ── Responsive for pkg grid ── */
+@media (max-width: 560px) {
+  #pkg_grid { grid-template-columns: 1fr !important; }
+}
+.module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; }
+.mod-toggle {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r);
+  cursor: pointer;
+  user-select: none;
+  transition: border-color .15s, background .15s, box-shadow .15s;
+  background: var(--smoke);
+}
+.mod-toggle:hover { border-color: var(--green-border); background: var(--green-pale); }
+.mod-toggle.active {
+  border-color: var(--green);
+  background: var(--green-pale);
+  box-shadow: 0 0 0 3px rgba(29,78,216,.1);
+}
+.mod-toggle.fly { border-color: #a8cce8; background: var(--blue-pale); }
+.mod-toggle.fly.active { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(26,95,168,.1); }
+.mod-toggle.teal-mod { border-color: var(--teal-border); background: var(--teal-pale); }
+.mod-toggle.teal-mod.active { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(14,140,122,.1); }
+.mod-check {
+  width: 18px; height: 18px;
+  border: 2px solid var(--line);
+  border-radius: 5px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: background .15s, border-color .15s;
+  background: var(--white);
+}
+.mod-toggle.active .mod-check { background: var(--green); border-color: var(--green); }
+.mod-toggle.fly.active .mod-check { background: var(--blue); border-color: var(--blue); }
+.mod-toggle.teal-mod.active .mod-check { background: var(--teal); border-color: var(--teal); }
+.mod-check svg { display: none; }
+.mod-toggle.active .mod-check svg { display: block; }
+.mod-info { line-height: 1.2; min-width: 0; }
+.mod-name { font-size: 12px; font-weight: 600; color: var(--ink2); }
+.mod-price { font-size: 10px; color: var(--ink3); font-family: var(--mono); }
+.mod-badge {
+  font-size: 8px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  padding: 1px 5px; border-radius: 4px; margin-left: 4px;
+}
+.mod-badge.new-blue { background: var(--blue); color: #fff; }
+.mod-badge.new-teal { background: var(--teal); color: #fff; }
+
+/* ── Toggle switch ── */
+.toggle-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r);
+  background: var(--smoke);
+  cursor: pointer;
+  user-select: none;
+  transition: border-color .15s, background .15s;
+  margin-bottom: 12px;
+}
+.toggle-row:hover { border-color: var(--teal-border); background: var(--teal-pale); }
+.toggle-row.on { border-color: var(--teal); background: var(--teal-pale); }
+.sw-track {
+  width: 36px; height: 20px;
+  background: var(--line);
+  border-radius: 10px;
+  position: relative;
+  transition: background .2s;
+  flex-shrink: 0;
+}
+.toggle-row.on .sw-track { background: var(--teal); }
+.sw-knob {
+  position: absolute; top: 2px; left: 2px;
+  width: 16px; height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform .2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,.2);
+}
+.toggle-row.on .sw-knob { transform: translateX(16px); }
+.toggle-text { font-size: 13px; font-weight: 500; color: var(--ink2); }
+.toggle-sub  { font-size: 11px; color: var(--ink3); }
+
+/* 4G subsection */
+.fourgbox {
+  background: var(--teal-pale);
+  border: 1.5px solid var(--teal-border);
+  border-radius: var(--r2);
+  padding: 18px;
+  margin-top: 2px;
+  display: none;
+  animation: slidein .2s ease;
+}
+.fourgbox.visible { display: block; }
+@keyframes slidein { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+.fourgbox-title {
+  font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--teal); margin-bottom: 14px;
+}
+.cam-mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+.cam-mode {
+  padding: 10px 12px; border: 1.5px solid var(--teal-border);
+  border-radius: var(--r); cursor: pointer; background: var(--white);
+  transition: border-color .15s, background .15s;
+}
+.cam-mode:hover { border-color: var(--teal); }
+.cam-mode.active { border-color: var(--teal); background: rgba(14,140,122,.06); }
+.cam-mode-name { font-size: 12px; font-weight: 600; color: var(--teal); display: flex; align-items: center; gap: 6px; }
+.cam-mode-dot { width: 8px; height: 8px; border: 2px solid var(--teal-border); border-radius: 50%; flex-shrink: 0; transition: background .15s, border-color .15s; }
+.cam-mode.active .cam-mode-dot { background: var(--teal); border-color: var(--teal); }
+.cam-mode-desc { font-size: 10px; color: var(--ink3); margin-top: 2px; }
+
+/* ── Fly-tipping subsection ── */
+.flybox {
+  background: var(--blue-pale);
+  border: 1.5px solid #b8d4f0;
+  border-radius: var(--r2);
+  padding: 18px;
+  margin-top: 14px;
+  display: none;
+}
+.flybox.visible { display: block; }
+.flybox-title {
+  font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--blue); margin-bottom: 14px;
+}
+
+/* Slider */
+.slider-field { display: flex; flex-direction: column; gap: 6px; }
+.slider-field label {
+  font-size: 11px; font-weight: 600; color: var(--ink3);
+  letter-spacing: .04em; text-transform: uppercase;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.slider-field label span {
+  font-family: var(--mono); font-size: 13px;
+  color: var(--green); font-weight: 500;
+  text-transform: none; letter-spacing: 0;
+}
+input[type=range] {
+  width: 100%; height: 4px; accent-color: var(--green); cursor: pointer;
+  background: var(--smoke3); border-radius: 2px;
+}
+
+/* ── Section divider ── */
+.section-divider {
+  display: flex; align-items: center; gap: 12px; margin: 8px 0 20px;
+}
+.section-divider-line { flex: 1; height: 1px; background: var(--smoke3); }
+.section-divider-label {
+  font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink3);
+}
+
+/* ── Results panel ── */
+.results-header {
+  background: var(--forest);
+  border-radius: var(--r2) var(--r2) 0 0;
+  padding: 20px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.results-title { font-size: 14px; font-weight: 600; color: #fff; }
+.results-sub   { font-size: 11px; color: rgba(255,255,255,.5); margin-top: 2px; }
+.results-live-badge {
+  display: flex; align-items: center; gap: 5px;
+  background: rgba(29,78,216,.15); border: 1px solid rgba(29,78,216,.3);
+  border-radius: 20px; padding: 3px 10px;
+  font-size: 10px; font-weight: 600; color: var(--green);
+}
+
+/* KPI grid */
+.kpi-strip {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  border-bottom: 1px solid var(--line);
+}
+.kpi {
+  padding: 20px;
+  border-right: 1px solid var(--line);
+  position: relative;
+}
+.kpi:last-child { border-right: none; }
+.kpi-label {
+  font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--ink3); margin-bottom: 6px;
+}
+.kpi-val {
+  font-family: var(--mono); font-size: 28px; font-weight: 500;
+  color: var(--ink); letter-spacing: -.02em; line-height: 1;
+}
+.kpi-val.green { color: var(--green); }
+.kpi-val.gold  { color: var(--gold); }
+.kpi-val.red   { color: var(--red); }
+.kpi-sub { font-size: 11px; color: var(--ink3); margin-top: 4px; }
+
+.kpi-strip-sm { display: grid; grid-template-columns: repeat(3, 1fr); border-bottom: 1px solid var(--line); }
+.kpi-sm {
+  padding: 14px 20px;
+  border-right: 1px solid var(--line);
+}
+.kpi-sm:last-child { border-right: none; }
+.kpi-sm-label { font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--ink3); margin-bottom: 4px; }
+.kpi-sm-val   { font-family: var(--mono); font-size: 18px; font-weight: 500; color: var(--ink); }
+.kpi-sm-val.green { color: var(--green); }
+.kpi-sm-val.gold  { color: var(--gold); }
+.kpi-sm-val.red   { color: var(--red); }
+.kpi-sm-sub   { font-size: 10px; color: var(--ink3); margin-top: 2px; }
+
+/* breakdown tables */
+.breakdown { padding: 0 24px 20px; }
+.breakdown-title {
+  font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--ink3); padding: 16px 0 10px;
+  border-bottom: 1px solid var(--smoke3); margin-bottom: 0;
+}
+.brow {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  padding: 9px 0; border-bottom: 1px solid var(--smoke3);
+}
+.brow:last-child { border-bottom: none; }
+.brow-name { font-size: 12px; color: var(--ink2); }
+.brow-sub  { font-size: 10px; color: var(--ink3); margin-top: 1px; }
+.brow-amt  { font-family: var(--mono); font-size: 13px; color: var(--ink); font-weight: 500; flex-shrink: 0; margin-left: 12px; }
+.brow-amt.green { color: var(--green); }
+.brow-amt.gold  { color: var(--gold); }
+.brow-amt.teal  { color: var(--teal); }
+.brow-amt.blue  { color: var(--blue); }
+.brow-amt.red   { color: var(--red); }
+.brow.total { padding: 10px 0 6px; }
+.brow.total .brow-name { font-weight: 700; font-size: 13px; }
+.brow.total .brow-amt  { font-weight: 700; font-size: 14px; }
+
+/* Savings bars */
+.sbar-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--smoke3); }
+.sbar-row:last-child { border-bottom: none; }
+.sbar-label { font-size: 11px; color: var(--ink2); width: 180px; flex-shrink: 0; }
+.sbar-track { flex: 1; background: var(--smoke3); border-radius: 3px; height: 8px; overflow: hidden; min-width: 0; }
+.sbar-fill  { height: 100%; border-radius: 3px; background: var(--green); transition: width .5s cubic-bezier(.4,0,.2,1); }
+.sbar-fill.blue { background: var(--blue); }
+.sbar-fill.teal { background: var(--teal); }
+.sbar-val  { font-family: var(--mono); font-size: 11px; color: var(--ink3); width: 56px; text-align: right; flex-shrink: 0; }
+
+/* Payback chart */
+.pchart-wrap { padding: 0 24px 20px; }
+.pchart-inner { display: flex; align-items: flex-end; gap: 3px; height: 88px; margin-top: 4px; }
+.pchart-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
+.pchart-bar { width: 100%; max-width: 40px; border-radius: 4px 4px 0 0; transition: height .5s cubic-bezier(.4,0,.2,1); }
+.pchart-labels { display: flex; margin-top: 6px; }
+.pchart-lbl { flex: 1; text-align: center; }
+.pchart-yr  { font-size: 10px; color: var(--ink3); }
+.pchart-amt { font-family: var(--mono); font-size: 10px; }
+
+/* 4G breakdown */
+.fourgrow { background: var(--teal-pale); border: 1px solid var(--teal-border); }
+.flyrow   { background: var(--blue-pale); border: 1px solid #b8d4f0; }
+.subtotal-row { background: var(--smoke); }
+
+/* ── Buttons ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 10px 20px; border-radius: var(--r);
+  border: none; cursor: pointer; font-family: var(--sans);
+  font-size: 13px; font-weight: 600;
+  text-decoration: none; transition: opacity .15s, transform .1s, box-shadow .15s;
+}
+.btn:hover { opacity: .88; transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+.btn-primary {
+  background: var(--green); color: #fff;
+  box-shadow: 0 4px 12px rgba(29,78,216,.3);
+}
+.btn-forest  { background: var(--forest); color: #fff; }
+.btn-outline {
+  background: transparent; color: var(--ink2);
+  border: 1.5px solid var(--line);
+}
+.btn-outline:hover { border-color: var(--green); color: var(--green); }
+.btn-gold { background: var(--gold); color: #fff; box-shadow: 0 4px 12px rgba(200,146,42,.3); }
+.btn-sm { padding: 7px 14px; font-size: 12px; }
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ── Source badge ── */
+.src-badge {
+  display: inline-block; font-size: 9px; font-weight: 700;
+  padding: 2px 7px; border-radius: 20px; letter-spacing: .04em;
+}
+.src-est    { background: #fff3cd; color: #856404; }
+.src-defra  { background: var(--green-pale); color: #155724; }
+.src-market { background: var(--teal-pale); color: var(--teal); }
+
+/* Rate card modal overlay */
+.rc-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(10,20,14,.55);
+  backdrop-filter: blur(4px);
+  display: none; align-items: center; justify-content: center;
+  padding: 20px;
+  animation: fadein .2s ease;
+}
+.rc-overlay.visible { display: flex; }
+@keyframes fadein { from{opacity:0} to{opacity:1} }
+.rc-modal {
+  background: var(--white);
+  border-radius: var(--r3);
+  box-shadow: var(--shadow-lg);
+  width: 100%; max-width: 760px;
+  max-height: 90vh;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.rc-modal-head {
+  background: var(--forest);
+  padding: 20px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+.rc-modal-title { font-size: 16px; font-weight: 700; color: #fff; }
+.rc-modal-sub   { font-size: 11px; color: rgba(255,255,255,.5); margin-top: 2px; }
+.rc-close {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: rgba(255,255,255,.1); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; color: #fff;
+  font-size: 18px; transition: background .15s; flex-shrink: 0;
+}
+.rc-close:hover { background: rgba(255,255,255,.2); }
+.rc-modal-body { overflow-y: auto; padding: 20px 24px; flex: 1; }
+.rc-modal-foot {
+  padding: 14px 24px;
+  border-top: 1px solid var(--line);
+  display: flex; justify-content: space-between; align-items: center;
+  flex-shrink: 0; background: var(--smoke);
+}
+
+/* Rate card table */
+.rc-section { margin-bottom: 20px; }
+.rc-section-title {
+  font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--ink3); padding: 10px 0 8px;
+  border-bottom: 2px solid var(--smoke3); margin-bottom: 2px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.rc-table { width: 100%; border-collapse: collapse; }
+.rc-table th {
+  font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--ink3); padding: 8px 10px; text-align: left;
+  background: var(--smoke); border-bottom: 1px solid var(--line);
+}
+.rc-table td { padding: 6px 10px; border-bottom: 1px solid var(--smoke3); vertical-align: middle; }
+.rc-table tr:last-child td { border-bottom: none; }
+.rc-table tr.teal-r td { background: rgba(14,140,122,.04); }
+.rc-table tr.fly-r  td { background: rgba(26,95,168,.04); }
+.rc-table .td-name  { font-size: 12px; color: var(--ink2); }
+.rc-table .td-desc  { font-size: 10px; color: var(--ink3); }
+.rc-table input[type=number], .rc-table input[type=text] {
+  background: var(--smoke); border: 1.5px solid var(--line);
+  border-radius: 6px; font-family: var(--mono); font-size: 12px;
+  color: var(--ink); padding: 5px 8px; width: 100%; outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+.rc-table input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(29,78,216,.1); }
+.rc-table input.changed { border-color: var(--gold); background: var(--gold-pale); }
+
+/* CTA footer */
+.cta-bar {
+  background: var(--forest);
+  border-radius: var(--r2);
+  padding: 24px 28px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; margin-top: 8px;
+}
+.cta-text  { color: #fff; font-size: 15px; font-weight: 600; }
+.cta-sub   { color: rgba(255,255,255,.55); font-size: 12px; margin-top: 3px; }
+
+/* Source info box */
+.source-box {
+  background: var(--gold-pale); border: 1px solid #e8d090;
+  border-radius: var(--r); padding: 12px 16px;
+  font-size: 11px; color: #5a4010; line-height: 1.7;
+  margin-bottom: 16px;
+}
+.source-box strong { font-weight: 600; }
+
+/* Warning */
+.warn-box {
+  background: #fff8e6; border: 1px solid #f0d080;
+  border-radius: var(--r); padding: 10px 14px;
+  font-size: 11px; color: #7a5000; margin-top: 10px;
+  display: none;
+}
+
+/* Responsive */
+@media (max-width: 720px) {
+  .hero { padding: 36px 20px 32px; }
+  .main { padding: 20px 16px 48px; }
+  .steps { flex-wrap: wrap; gap: 4px; }
+  .step-divider { display: none; }
+  .form-grid-4, .form-grid-3, .form-grid-2 { grid-template-columns: 1fr 1fr; }
+  .kpi-strip, .kpi-strip-sm { grid-template-columns: 1fr 1fr; }
+  .kpi-strip .kpi:nth-child(3) { grid-column: span 2; border-top: 1px solid var(--line); border-right: none; }
+}
+@media (max-width: 480px) {
+  .form-grid, .form-grid-3, .form-grid-2 { grid-template-columns: 1fr; }
+  .kpi-strip, .kpi-strip-sm { grid-template-columns: 1fr; }
+  .kpi { border-right: none; border-bottom: 1px solid var(--line); }
+  .kpi-sm { border-right: none; border-bottom: 1px solid var(--line); }
+  .topbar { padding: 0 16px; }
+  .cta-bar { flex-direction: column; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 3L4 7.5V16.5L12 21L20 16.5V7.5L12 3Z" fill="rgba(255,255,255,.15)" stroke="white" stroke-width="1.5"/>
+        <path d="M12 8L8 10.5V15.5L12 18L16 15.5V10.5L12 8Z" fill="white"/>
+      </svg>
+    </div>
+    <span class="logo-name">Fortix <span>AI</span></span>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-label">ROI Calculator</span>
+    <button class="btn btn-outline btn-sm" onclick="openRateCard()">⚙ Rate Card</button>
+  </div>
+</div>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow"><div class="hero-dot"></div>Free ROI Assessment</div>
+    <h1>How much could your organisation<br><span>save with AI video intelligence?</span></h1>
+    <p class="hero-sub">Configure your deployment below and get an instant business case — including payback period, 3-year ROI, and a full cost breakdown.</p>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+
+  <!-- Step indicator -->
+  <div class="steps">
+    <div class="step active" id="step1" onclick="goStep(1)">
+      <div class="step-num">1</div>
+      <div class="step-text">
+        <div class="step-label">Your deployment</div>
+        <div class="step-sub">Sites, cameras &amp; modules</div>
+      </div>
+    </div>
+    <div class="step-divider"></div>
+    <div class="step" id="step2" onclick="goStep(2)">
+      <div class="step-num">2</div>
+      <div class="step-text">
+        <div class="step-label">Savings inputs</div>
+        <div class="step-sub">Costs, staff &amp; losses</div>
+      </div>
+    </div>
+    <div class="step-divider"></div>
+    <div class="step" id="step3" onclick="goStep(3)">
+      <div class="step-num">3</div>
+      <div class="step-text">
+        <div class="step-label">Your results</div>
+        <div class="step-sub">ROI &amp; business case</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── STEP 1: Deployment ─── -->
+  <div id="panel1">
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-head-left">
+          <div class="card-icon green">🏢</div>
+          <div><div class="card-title">Organisation &amp; site profile</div><div class="card-sub">Tell us about your estate</div></div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="form-grid form-grid-4">
+          <div class="field">
+            <label>Industry sector</label>
+            <div class="select-wrap">
+              <select id="industry" onchange="applyIndustryBenchmarks(this.value);calc()">
+                <option value="retail">Retail / Fashion</option>
+                <option value="warehouse">Warehouse / Logistics</option>
+                <option value="healthcare">Healthcare</option>
+                <option value="public" selected>Public Sector / Local Authority</option>
+                <option value="manufacturing">Manufacturing</option>
+                <option value="property">Property Management</option>
+                <option value="security">Security</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label>Number of sites</label>
+            <input type="number" id="sites" value="1" min="1" max="500" oninput="onSitesChange()">
+          </div>
+          <div class="field">
+            <label>Number of cameras</label>
+            <input type="number" id="org_cameras" value="1" min="1" oninput="syncOrgCameras()" readonly style="background:var(--smoke2);cursor:default">
+            <div class="hint" id="org_cameras_hint">Updates as you assign cameras per site</div>
+          </div>
+          <div class="field">
+            <label>Annual budget / revenue per site</label>
+            <div class="prefix-wrap">
+              <span class="prefix">£</span>
+              <input type="number" id="revenue" value="500000" min="10000" oninput="calc()">
+            </div>
+          </div>
+        </div>
+
+        <!-- Per-site camera breakdown (shown when sites > 1) -->
+        <div id="per_site_panel" style="display:none;margin-top:16px;padding-top:14px;border-top:1px solid var(--smoke3)">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3)">Cameras per site</div>
+            <div style="font-size:11px;color:var(--ink3)">
+              Total: <span id="site_cam_allocated" style="font-family:var(--mono);font-weight:600;color:var(--green)">0</span> cameras
+              <span id="site_cam_remaining_wrap"></span>
+              <span id="site_edge_total_wrap" style="display:none"> &nbsp;·&nbsp; Edge boxes: <span id="site_edge_total" style="font-family:var(--mono);font-weight:600;color:var(--green)">—</span></span>
+            </div>
+          </div>
+          <div id="site_rows" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px"></div>
+        </div>
+
+        <!-- Camera type selection -->
+        <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--smoke3)">
+          <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:10px">Camera type</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <label id="chk_ip_label" onclick="toggleCamType('ip')" style="display:flex;align-items:center;gap:8px;cursor:pointer;background:var(--smoke);border:2px solid var(--line);border-radius:var(--r);padding:10px 14px;transition:border-color .15s,background .15s;user-select:none">
+              <span id="chk_ip_box" style="width:16px;height:16px;border-radius:4px;border:2px solid var(--line);background:var(--white);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s,border-color .15s"></span>
+              <span style="font-size:12px;font-weight:600;color:var(--ink2)">🖥 IP Camera / NVR — AI Edge Box</span>
+            </label>
+            <label id="chk_4g_label" onclick="toggleCamType('4g')" style="display:flex;align-items:center;gap:8px;cursor:pointer;background:var(--smoke);border:2px solid var(--line);border-radius:var(--r);padding:10px 14px;transition:border-color .15s,background .15s;user-select:none">
+              <span id="chk_4g_box" style="width:16px;height:16px;border-radius:4px;border:2px solid var(--line);background:var(--white);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s,border-color .15s"></span>
+              <span style="font-size:12px;font-weight:600;color:var(--ink2)">☁ 4G / 5G Camera — Fortix Cloud</span>
+            </label>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-head-left">
+          <div class="card-icon green">🤖</div>
+          <div><div class="card-title">AI package &amp; modules</div><div class="card-sub">Choose your package, then select which AI models to include</div></div>
+        </div>
+        <div id="mod_count_badge" style="font-family:var(--mono);font-size:11px;color:var(--ink3)">Selected: <span id="mod_count" style="color:var(--green);font-weight:600">2</span> / <span id="mod_cap">4</span></div>
+      </div>
+      <div class="card-body">
+
+        <!-- Package selector -->
+        <div style="margin-bottom:20px">
+          <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:10px">Select package</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px" id="pkg_grid">
+
+            <div class="pkg-card active" id="pkg_standard" onclick="selectPackage('standard')">
+              <div class="pkg-name">Standard</div>
+              <div class="pkg-price" id="pkgprice_standard">£850<span>/site/mo</span></div>
+              <div class="pkg-detail">Up to <strong>4 AI models</strong></div>
+              <div class="pkg-detail">Options: up to 4 or 8 cameras/site</div>
+              <div class="pkg-check"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            </div>
+
+            <div class="pkg-card" id="pkg_premium" onclick="selectPackage('premium')">
+              <div class="pkg-name">Premium</div>
+              <div class="pkg-price" id="pkgprice_premium">£1,400<span>/site/mo</span></div>
+              <div class="pkg-detail">Up to <strong>4 AI models</strong></div>
+              <div class="pkg-detail">Up to 16 cameras/site</div>
+              <div class="pkg-check"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            </div>
+
+            <div class="pkg-card" id="pkg_premiumplus" onclick="selectPackage('premiumplus')">
+              <div class="pkg-name">Premium Plus</div>
+              <div class="pkg-price" id="pkgprice_premiumplus">£1,800<span>/site/mo</span></div>
+              <div class="pkg-detail">Up to <strong>8 AI models</strong></div>
+              <div class="pkg-detail">Up to 32 cameras/site</div>
+              <div class="pkg-check"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            </div>
+
+            <div class="pkg-card pkg-enterprise" id="pkg_enterprise" onclick="selectPackage('enterprise')">
+              <div class="pkg-name">Enterprise</div>
+              <div class="pkg-price" id="pkgprice_enterprise">£2,200<span>/site/mo</span></div>
+              <div class="pkg-detail">Up to <strong>8 AI models</strong></div>
+              <div class="pkg-detail">Unlimited cameras + custom training</div>
+              <div class="pkg-check"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Module cap warning -->
+        <div id="cap_warning" style="display:none;background:#fff8e6;border:1px solid #f0d080;border-radius:var(--r);padding:10px 14px;font-size:11px;color:#7a5000;margin-bottom:14px">
+          ⚠ You've reached the <strong id="cap_warning_limit">4</strong>-model limit for the <span id="cap_warning_pkg">Standard</span> package. Upgrade to Premium or Enterprise to add more models.
+        </div>
+
+        <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:10px">Choose your AI models</div>
+        <div class="module-grid" id="module_grid">
+          <div class="mod-toggle" onclick="toggleMod(this,'shrinkage')">
+            <div class="mod-check"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="mod-info"><div class="mod-name">Shrinkage / theft</div></div>
+          </div>
+          <div class="mod-toggle" onclick="toggleMod(this,'footfall')">
+            <div class="mod-check"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="mod-info"><div class="mod-name">Footfall analytics</div></div>
+          </div>
+          <div class="mod-toggle" onclick="toggleMod(this,'ppe')">
+            <div class="mod-check"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="mod-info"><div class="mod-name">PPE &amp; safety</div></div>
+          </div>
+          <div class="mod-toggle" onclick="toggleMod(this,'forklift')">
+            <div class="mod-check"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="mod-info"><div class="mod-name">Forklift proximity</div></div>
+          </div>
+          <div class="mod-toggle" onclick="toggleMod(this,'anpr')">
+            <div class="mod-check"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="mod-info"><div class="mod-name">ANPR</div></div>
+          </div>
+          <div class="mod-toggle" onclick="toggleMod(this,'queue')">
+            <div class="mod-check"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="mod-info"><div class="mod-name">Queue management</div></div>
+          </div>
+          <div class="mod-toggle" onclick="toggleMod(this,'crowd')">
+            <div class="mod-check"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="mod-info"><div class="mod-name">Crowd &amp; occupancy</div></div>
+          </div>
+          <div class="mod-toggle" onclick="toggleMod(this,'incident')">
+            <div class="mod-check"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="mod-info"><div class="mod-name">Incident detection</div></div>
+          </div>
+          <div class="mod-toggle active" onclick="toggleMod(this,'flytipping')">
+            <div class="mod-check"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="mod-info"><div class="mod-name">Fly-tipping detection</div></div>
+          </div>
+          <div class="mod-toggle active" onclick="toggleMod(this,'flyanpr')">
+            <div class="mod-check"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="mod-info"><div class="mod-name">Fly-tip ANPR</div></div>
+          </div>
+          <div class="mod-toggle" onclick="toggleMod(this,'asb')">
+            <div class="mod-check"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="mod-info"><div class="mod-name">Anti-social behaviour</div></div>
+          </div>
+          <div class="mod-toggle" onclick="toggleMod(this,'facialrec')">
+            <div class="mod-check"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="mod-info"><div class="mod-name">Facial recognition</div></div>
+          </div>
+          <div class="mod-toggle" onclick="toggleMod(this,'multizone')">
+            <div class="mod-check"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="mod-info"><div class="mod-name">Multi-zone detection</div></div>
+          </div>
+          <div class="mod-toggle" onclick="toggleMod(this,'weapons')">
+            <div class="mod-check"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="mod-info"><div class="mod-name">Weapons detection</div></div>
+          </div>
+          <div class="mod-toggle" onclick="toggleMod(this,'smokefire')">
+            <div class="mod-check"><svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="mod-info"><div class="mod-name">Smoke &amp; fire detection</div></div>
+          </div>
+        </div>
+
+        <!-- Custom model training (Enterprise only) -->
+        <div id="custom_training_wrap" style="display:none;margin-top:14px">
+          <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin:14px 0 10px">Custom model training</div>
+          <div class="toggle-row" id="toggle_custom" onclick="toggleCustomTraining()" style="border-color:var(--gold);background:var(--gold-pale)">
+            <div class="sw-track" id="custom_sw_track"><div class="sw-knob"></div></div>
+            <div>
+              <div class="toggle-text" style="color:var(--gold)">Add custom model training — £<span id="custom_fee_label">1,500</span> one-off</div>
+              <div class="toggle-sub">Train a bespoke AI model on your own footage. Included in Enterprise package. One-off fee per deployment.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fly-tipping inputs -->
+        <div class="flybox" id="flybox">
+          <div class="flybox-title">Fly-tipping enforcement inputs</div>
+          <div class="form-grid form-grid-3">
+            <div class="field">
+              <label>Incidents per site per year</label>
+              <input type="number" id="fly_incidents" value="120" min="0" oninput="calc()" style="background:var(--white)">
+              <div class="hint">DEFRA avg: 60–200 for urban LAs</div>
+            </div>
+            <div class="field">
+              <label>Clearance cost per incident</label>
+              <div class="prefix-wrap">
+                <span class="prefix">£</span>
+                <input type="number" id="fly_clearance" value="850" min="0" oninput="calc()" style="background:var(--white)">
+              </div>
+              <div class="hint">DEFRA 2022/23 avg: ~£850</div>
+            </div>
+            <div class="field">
+              <label>FPN value</label>
+              <div class="prefix-wrap">
+                <span class="prefix">£</span>
+                <input type="number" id="fly_fpn" value="400" min="100" max="1000" oninput="calc()" style="background:var(--white)">
+              </div>
+              <div class="hint">Statutory range: £400–£1,000</div>
+            </div>
+          </div>
+          <div class="form-grid form-grid-3" style="margin-top:14px">
+            <div class="slider-field">
+              <label>Detection improvement <span id="fly_det_val">65%</span></label>
+              <input type="range" id="fly_detection" min="20" max="90" step="5" value="65" oninput="calc()">
+            </div>
+            <div class="slider-field">
+              <label>FPN issuance rate <span id="fly_fpnr_val">25%</span></label>
+              <input type="range" id="fly_fpn_rate" min="5" max="60" step="5" value="25" oninput="calc()">
+            </div>
+            <div class="slider-field">
+              <label>Deterrence reduction <span id="fly_deter_val">35%</span></label>
+              <input type="range" id="fly_deter" min="10" max="70" step="5" value="35" oninput="calc()">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-head-left">
+          <div class="card-icon teal">📡</div>
+          <div><div class="card-title">Camera &amp; connectivity</div><div class="card-sub">Wired IP cameras use an on-site AI Edge Box — 4G/5G cameras connect via the Fortix Cloud</div></div>
+        </div>
+      </div>
+      <div class="card-body">
+
+        <!-- Clickable camera type selector tiles -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
+          <div id="tile_ip" onclick="toggleCamSection('ip')" style="background:var(--blue-pale);border:2px solid var(--green-border);border-radius:var(--r);padding:14px;cursor:pointer;transition:border-color .15s,box-shadow .15s">
+            <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:6px">🖥 IP Camera / NVR — AI Edge Box</div>
+            <div style="font-size:11px;color:var(--ink2);line-height:1.6">Wired RTSP / ONVIF cameras connect to an on-site Fortix AI Edge Box. AI processing runs locally — no cloud dependency for live inference. Footage stays on site.</div>
+            <div style="margin-top:10px;font-size:11px;font-weight:600;color:var(--green)" id="tile_ip_cta">▼ Configure IP cameras</div>
+          </div>
+          <div id="tile_4g" onclick="toggleCamSection('4g')" style="background:var(--teal-pale);border:2px solid var(--teal-border);border-radius:var(--r);padding:14px;cursor:pointer;transition:border-color .15s,box-shadow .15s">
+            <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);margin-bottom:6px">☁ 4G / 5G Camera — Fortix Cloud</div>
+            <div style="font-size:11px;color:var(--ink2);line-height:1.6">Cellular cameras push event clips via FTP or RTSP stream to the Fortix Cloud platform. No edge box required — ideal for remote or infrastructure-free sites.</div>
+            <div style="margin-top:10px;font-size:11px;font-weight:600;color:var(--teal)" id="tile_4g_cta">▼ Configure 4G / 5G cameras</div>
+          </div>
+        </div>
+
+        <!-- IP Camera / Edge Box section (collapsible) -->
+        <div id="section_ip" style="display:none">
+        <div class="section-divider">
+          <div class="section-divider-line"></div>
+          <div class="section-divider-label">IP Camera / NVR — AI Edge Box</div>
+          <div class="section-divider-line"></div>
+        </div>
+
+        <!-- Hidden input for cost model -->
+        <input type="hidden" id="cams_per_site" value="1">
+        <input type="hidden" id="edgebox_tier" value="4ch">
+
+        <!-- Per-site edge box breakdown -->
+        <div id="ip_site_breakdown" style="margin-bottom:16px"></div>
+
+        <!-- Summary row -->
+        <div id="ip_edge_summary" style="background:var(--green-pale);border:1.5px solid var(--green-border);border-radius:var(--r);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <div style="font-size:12px;font-weight:600;color:var(--ink2)">Total AI Edge Box hardware cost</div>
+          <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--green)" id="ip_edge_total">£0</div>
+        </div>
+        <div style="font-size:11px;color:var(--ink3);margin-bottom:16px">One-off hardware cost — included in Year 1 investment total</div>
+
+        <div class="field" style="max-width:260px">
+          <label>Camera channel limit</label>
+          <div style="background:var(--smoke);border:1.5px solid var(--line);border-radius:var(--r);padding:9px 12px;font-size:12px;color:var(--ink3);font-family:var(--mono)" id="channel_limit_display">8 channels (Standard)</div>
+          <div class="hint">Set by your selected package above</div>
+        </div>
+
+        </div><!-- /section_ip -->
+
+        <!-- 4G / 5G section (collapsible) -->
+        <div id="section_4g" style="display:none">
+        <div class="section-divider">
+          <div class="section-divider-line"></div>
+          <div class="section-divider-label">4G / 5G cameras — Fortix Cloud</div>
+          <div class="section-divider-line"></div>
+        </div>
+
+        <div class="fourgbox visible" id="fourgbox">
+          <div class="fourgbox-title">4G / 5G cloud camera configuration</div>
+          <div class="form-grid form-grid-3" style="margin-bottom:14px">
+            <div class="field">
+              <label>Number of 4G cameras (total)</label>
+              <input type="number" id="cam4g_count" value="1" min="1" oninput="calc()" style="background:var(--white)">
+            </div>
+            <div class="field">
+              <label>Hardware tier</label>
+              <div class="select-wrap">
+                <select id="cam4g_tier" onchange="calc()" style="background:var(--white)">
+                  <option value="budget">Covert 4G camera (~£120)</option>
+                  <option value="mid" selected>Bullet 5G camera (~£280)</option>
+                  <option value="pro">PTZ 5G camera (~£580)</option>
+                  <option value="anpr">ANPR 5G camera (~£750)</option>
+                </select>
+              </div>
+            </div>
+            <div class="field">
+              <label>Solar + battery kit</label>
+              <div class="select-wrap">
+                <select id="cam4g_solar" onchange="calc()" style="background:var(--white)">
+                  <option value="none">None — mains / PoE powered</option>
+                  <option value="some">Some cameras (50% off-grid)</option>
+                  <option value="all">All cameras — fully off-grid</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="cam-mode-grid">
+            <div class="cam-mode active" id="cammode_event" onclick="setCamMode('event')">
+              <div class="cam-mode-name"><div class="cam-mode-dot"></div>Event-push (FTP)</div>
+              <div class="cam-mode-desc">Clip sent on AI trigger. ~£<span id="sim_event_price">8</span>/cam/mo SIM. Recommended.</div>
+            </div>
+            <div class="cam-mode" id="cammode_live" onclick="setCamMode('live')">
+              <div class="cam-mode-name"><div class="cam-mode-dot"></div>Live / on-demand view</div>
+              <div class="cam-mode-desc">Streaming access. ~£<span id="sim_live_price">18</span>/cam/mo SIM.</div>
+            </div>
+          </div>
+          <div class="form-grid form-grid-2" style="margin-top:12px">
+            <div class="field">
+              <label>Private APN / WireGuard tunnel</label>
+              <div class="select-wrap">
+                <select id="cam4g_apn" onchange="calc()" style="background:var(--white)">
+                  <option value="no">No — standard SIM routing</option>
+                  <option value="yes">Yes — static IP, CGNAT bypass (+£<span id="apn_price_label">350</span>)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="warn-box" id="warn_tier">⚠ Camera count may exceed your selected tier's channel limit. Consider upgrading to Enterprise.</div>
+        </div><!-- /fourgbox -->
+        </div><!-- /section_4g -->
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;margin-bottom:8px">
+      <button class="btn btn-primary" onclick="goStep(2)">Next: Savings inputs →</button>
+    </div>
+  </div>
+
+  <!-- ─── STEP 2: Savings inputs ─── -->
+  <div id="panel2" style="display:none">
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-head-left">
+          <div class="card-icon green">📊</div>
+          <div>
+            <div class="card-title">Cost &amp; savings inputs</div>
+            <div class="card-sub" id="step2_sub">Pre-populated with UK benchmark data for your sector — adjust to match your actuals</div>
+          </div>
+        </div>
+        <div id="benchmark_badge" style="font-size:10px;font-weight:600;letter-spacing:.06em;padding:4px 10px;border-radius:20px;background:var(--green-pale);color:var(--green);border:1px solid var(--green-border)">Benchmarks loaded</div>
+      </div>
+
+      <!-- Benchmark source banner -->
+      <div id="benchmark_banner" style="background:var(--gold-pale);border-bottom:1px solid #e8d090;padding:10px 24px;font-size:11px;color:#5a4010;line-height:1.6">
+        <strong id="banner_title">Industry benchmarks</strong> — <span id="banner_sources">Sources loaded on industry selection</span>. All figures are editable — replace with your client's actuals for a more precise ROI.
+      </div>
+
+      <div class="card-body">
+
+        <!-- Staffing -->
+        <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:12px">Staffing costs</div>
+        <div class="form-grid form-grid-3" style="margin-bottom:20px">
+          <div class="field">
+            <label>Security / monitoring FTE (all sites)</label>
+            <input type="number" id="security_fte" value="6" min="0" oninput="calc()">
+            <div class="hint" id="hint_fte">Adjust to reflect your total headcount</div>
+          </div>
+          <div class="field">
+            <label>Average FTE cost incl. oncosts</label>
+            <div class="prefix-wrap"><span class="prefix">£</span>
+              <input type="number" id="fte_cost" value="34000" min="0" oninput="calc()">
+            </div>
+            <div class="hint">Salary + NI + pension + benefits. UK avg security officer ~£28–32k</div>
+          </div>
+          <div class="field">
+            <label>Shrinkage / stock loss rate</label>
+            <input type="range" id="shrinkage_rate" min="0.2" max="5" step="0.1" value="1.0" oninput="calc()">
+            <div style="font-family:var(--mono);font-size:13px;color:var(--green);margin-top:4px"><span id="shr_rate_val">1.0</span>% of revenue</div>
+            <div class="hint" id="hint_shrinkage">% of annual revenue/budget lost to theft, fraud, damage</div>
+          </div>
+        </div>
+
+        <!-- Incident & insurance costs -->
+        <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:12px;padding-top:4px;border-top:1px solid var(--smoke3)">Incident &amp; insurance costs</div>
+        <div class="form-grid form-grid-3" style="margin-bottom:8px">
+          <div class="field">
+            <label>Annual insurance premium (all sites)</label>
+            <div class="prefix-wrap"><span class="prefix">£</span>
+              <input type="number" id="insurance_cost" value="28000" min="0" oninput="calc()">
+            </div>
+            <div class="hint" id="hint_insurance">Combined liability, property &amp; incident cover</div>
+          </div>
+          <div class="field">
+            <label>Annual incident management cost</label>
+            <div class="prefix-wrap"><span class="prefix">£</span>
+              <input type="number" id="incident_mgmt_cost" value="15000" min="0" oninput="calc()">
+            </div>
+            <div class="hint" id="hint_incident">Staff time, investigation, legal, remediation costs</div>
+          </div>
+          <div class="field">
+            <label>Annual vandalism / damage repair</label>
+            <div class="prefix-wrap"><span class="prefix">£</span>
+              <input type="number" id="vandalism_cost" value="8000" min="0" oninput="calc()">
+            </div>
+            <div class="hint" id="hint_vandalism">Graffiti, property damage, unauthorised access damage</div>
+          </div>
+        </div>
+        <div class="form-grid form-grid-2" style="margin-bottom:20px;margin-top:14px">
+          <div class="slider-field">
+            <label>Expected insurance reduction with AI <span id="ins_red_val">15%</span></label>
+            <input type="range" id="incident_reduction" min="5" max="40" step="1" value="15" oninput="calc()">
+            <div class="hint">Insurers offer 10–25% reduction for verified AI monitoring</div>
+          </div>
+          <div class="slider-field">
+            <label>Incident volume reduction <span id="inc_vol_val">30%</span></label>
+            <input type="range" id="incident_volume_reduction" min="10" max="60" step="5" value="30" oninput="calc()">
+            <div class="hint">Deterrence + earlier detection reduces total incidents</div>
+          </div>
+        </div>
+
+        <!-- Operational losses -->
+        <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:12px;padding-top:4px;border-top:1px solid var(--smoke3)">Operational losses</div>
+        <div class="form-grid form-grid-3">
+          <div class="field">
+            <label>Annual workplace injury cost</label>
+            <div class="prefix-wrap"><span class="prefix">£</span>
+              <input type="number" id="injury_cost" value="18000" min="0" oninput="calc()">
+            </div>
+            <div class="hint" id="hint_injury">Lost time, investigation, compensation. HSE avg £9,100/case</div>
+          </div>
+          <div class="field">
+            <label>Annual false alarm / call-out cost</label>
+            <div class="prefix-wrap"><span class="prefix">£</span>
+              <input type="number" id="false_alarm_cost" value="6000" min="0" oninput="calc()">
+            </div>
+            <div class="hint" id="hint_false_alarm">Fire service, security response &amp; staff disruption costs</div>
+          </div>
+          <div class="field">
+            <label>Annual operational downtime cost</label>
+            <div class="prefix-wrap"><span class="prefix">£</span>
+              <input type="number" id="downtime_cost" value="12000" min="0" oninput="calc()">
+            </div>
+            <div class="hint" id="hint_downtime">Production/trading loss from security-related disruptions</div>
+          </div>
+        </div>
+
+        <!-- Benchmark data table -->
+        <div id="benchmark_table" style="margin-top:20px;background:var(--smoke);border:1px solid var(--line);border-radius:var(--r);padding:14px">
+          <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:10px">UK benchmark data — <span id="bench_industry_label">your sector</span></div>
+          <div id="bench_rows" style="display:grid;grid-template-columns:1fr 1fr;gap:6px 20px"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+      <button class="btn btn-outline" onclick="goStep(1)">← Back</button>
+      <button class="btn btn-primary" onclick="goStep(3)">Calculate ROI →</button>
+    </div>
+  </div>
+
+  <!-- ─── STEP 3: Results ─── -->
+  <div id="panel3" style="display:none">
+
+    <!-- Results card -->
+    <div class="card" style="overflow:hidden">
+      <div class="results-header">
+        <div>
+          <div class="results-title">Your ROI analysis</div>
+          <div class="results-sub" id="results-config-desc">5 sites · Professional tier · 2 modules active</div>
+        </div>
+        <div class="results-live-badge"><div class="hero-dot"></div>Live calculation</div>
+      </div>
+
+      <!-- Primary KPIs -->
+      <div class="kpi-strip">
+        <div class="kpi">
+          <div class="kpi-label">Year 1 investment</div>
+          <div class="kpi-val" id="kpi_y1">—</div>
+          <div class="kpi-sub">All-in incl. hardware &amp; install</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Annual saving</div>
+          <div class="kpi-val green" id="kpi_saving">—</div>
+          <div class="kpi-sub">All value drivers combined</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Payback period</div>
+          <div class="kpi-val" id="kpi_payback">—</div>
+          <div class="kpi-sub" id="kpi_payback_sub">months to breakeven</div>
+        </div>
+      </div>
+      <div class="kpi-strip-sm">
+        <div class="kpi-sm">
+          <div class="kpi-sm-label">3-year net benefit</div>
+          <div class="kpi-sm-val green" id="kpi_3yr">—</div>
+          <div class="kpi-sm-sub">After all costs</div>
+        </div>
+        <div class="kpi-sm">
+          <div class="kpi-sm-label">3-year ROI</div>
+          <div class="kpi-sm-val green" id="kpi_roi">—</div>
+          <div class="kpi-sm-sub">Return on investment</div>
+        </div>
+        <div class="kpi-sm">
+          <div class="kpi-sm-label">Package price / site</div>
+          <div class="kpi-sm-val gold" id="kpi_monthly">—</div>
+          <div class="kpi-sm-sub" id="kpi_sub2">per month, flat rate</div>
+        </div>
+      </div>
+
+      <!-- Payback chart -->
+      <div class="pchart-wrap">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);padding:16px 0 10px;border-bottom:1px solid var(--smoke3)">Cumulative cash position — 5 years</div>
+        <div class="pchart-inner" id="pchart" style="padding-top:12px"></div>
+        <div class="pchart-labels" id="pchart_labels"></div>
+      </div>
+
+      <!-- 4G breakdown (conditional) -->
+      <div id="fourgresult" style="display:none">
+        <div class="breakdown">
+          <div class="breakdown-title" style="color:var(--teal)">4G camera costs</div>
+          <div class="brow fourgrow" style="border-radius:var(--r) var(--r) 0 0;padding:8px 10px;margin-top:6px">
+            <div><div class="brow-name">Hardware</div><div class="brow-sub" id="r4g_hw_sub">—</div></div>
+            <div class="brow-amt teal" id="r4g_hw">—</div>
+          </div>
+          <div class="brow fourgrow" style="padding:8px 10px">
+            <div><div class="brow-name">Solar kits</div><div class="brow-sub" id="r4g_solar_sub">—</div></div>
+            <div class="brow-amt teal" id="r4g_solar">—</div>
+          </div>
+          <div class="brow fourgrow" style="padding:8px 10px">
+            <div><div class="brow-name">Installation</div><div class="brow-sub" id="r4g_install_sub">—</div></div>
+            <div class="brow-amt teal" id="r4g_install">—</div>
+          </div>
+          <div class="brow fourgrow" id="apnrow" style="padding:8px 10px;display:none">
+            <div><div class="brow-name">Private APN setup</div><div class="brow-sub">One-off per deployment</div></div>
+            <div class="brow-amt teal" id="r4g_apn">—</div>
+          </div>
+          <div class="brow fourgrow" style="border-radius:0 0 var(--r) var(--r);padding:8px 10px">
+            <div><div class="brow-name" style="font-weight:600">4G one-off total</div></div>
+            <div class="brow-amt teal" style="font-weight:700" id="r4g_onetime">—</div>
+          </div>
+          <div class="brow" style="padding-top:6px">
+            <div><div class="brow-name" style="color:var(--teal)">SIM data (ongoing / yr)</div><div class="brow-sub" id="r4g_sim_sub">—</div></div>
+            <div class="brow-amt teal" id="r4g_sim">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fly-tipping breakdown (conditional) -->
+      <div id="flyresult" style="display:none">
+        <div class="breakdown">
+          <div class="breakdown-title" style="color:var(--blue)">Fly-tipping enforcement economics (annual, all sites)</div>
+          <div class="brow flyrow" style="border-radius:var(--r) var(--r) 0 0;padding:8px 10px;margin-top:6px">
+            <div><div class="brow-name">Clearance cost avoided</div><div class="brow-sub" id="rfly_clr_sub">—</div></div>
+            <div class="brow-amt blue" id="rfly_clr">—</div>
+          </div>
+          <div class="brow flyrow" style="padding:8px 10px">
+            <div><div class="brow-name">Investigation staff time saved</div><div class="brow-sub" id="rfly_staff_sub">—</div></div>
+            <div class="brow-amt blue" id="rfly_staff">—</div>
+          </div>
+          <div class="brow flyrow" style="border-radius:0 0 var(--r) var(--r);padding:8px 10px">
+            <div><div class="brow-name">FPN revenue generated</div><div class="brow-sub" id="rfly_fpn_sub">—</div></div>
+            <div class="brow-amt blue" id="rfly_fpn">—</div>
+          </div>
+          <div class="brow total">
+            <div class="brow-name">Total fly-tipping saving</div>
+            <div class="brow-amt blue" id="rfly_total">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cost model -->
+      <div class="breakdown">
+        <div class="breakdown-title">Full cost model — Year 1</div>
+        <div class="brow"><div><div class="brow-name">Package licence</div><div class="brow-sub" id="r_lic_sub">—</div></div><div class="brow-amt" id="r_lic">—</div></div>
+        <div class="brow"><div><div class="brow-name">AI models included</div><div class="brow-sub" id="r_mod_sub" style="max-width:340px;white-space:normal;line-height:1.4">—</div></div><div class="brow-amt" id="r_mod" style="color:var(--green)">—</div></div>
+        <div class="brow" id="row_custom_training" style="display:none"><div><div class="brow-name">Custom model training</div><div class="brow-sub">One-off fee — Enterprise only</div></div><div class="brow-amt gold" id="r_custom_training">—</div></div>
+        <div class="brow"><div><div class="brow-name">IP Camera/NVR — AI Edge Box</div><div class="brow-sub" id="r_edge_sub">—</div></div><div class="brow-amt" id="r_edge">—</div></div>
+        <div class="brow"><div><div class="brow-name">Wired installation &amp; commissioning</div><div class="brow-sub" id="r_install_sub">—</div></div><div class="brow-amt" id="r_install">—</div></div>
+        <div class="brow" id="row_4ghw" style="display:none"><div><div class="brow-name">4G cameras — hardware &amp; install</div><div class="brow-sub" id="r_4ghw_sub">—</div></div><div class="brow-amt teal" id="r_4ghw">—</div></div>
+        <div class="brow" id="row_4gapn" style="display:none"><div><div class="brow-name">Private APN / WireGuard</div></div><div class="brow-amt teal" id="r_4gapn">—</div></div>
+        <div class="brow"><div><div class="brow-name">Support &amp; SLA</div><div class="brow-sub" id="r_sup_sub">—</div></div><div class="brow-amt" id="r_sup">—</div></div>
+        <div class="brow total"><div class="brow-name">Total Year 1</div><div class="brow-amt" id="r_total_y1">—</div></div>
+        <div class="brow"><div><div class="brow-name" style="color:var(--ink3)">Ongoing from Year 2</div><div class="brow-sub" id="r_ongoing_sub">Licence + modules + support</div></div><div class="brow-amt" style="color:var(--ink3)" id="r_ongoing">—</div></div>
+      </div>
+
+      <!-- Savings breakdown -->
+      <div class="breakdown">
+        <div class="breakdown-title">Annual savings breakdown</div>
+        <div id="savings_bars" style="padding-top:8px"></div>
+        <div class="brow total" style="margin-top:4px"><div class="brow-name">Total annual saving</div><div class="brow-amt green" id="r_total_saving">—</div></div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-bar">
+      <div>
+        <div class="cta-text">Ready to build your full business case?</div>
+        <div class="cta-sub">Book a 30-minute session with a Fortix AI specialist — we'll produce a branded proposal for your board.</div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-outline" style="color:#fff;border-color:rgba(255,255,255,.3)" onclick="window.print()">Print / save PDF</button>
+        <button class="btn btn-primary" onclick="alert('Calendly integration — link to your booking page here')">Book a demo →</button>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:flex-start;margin-top:16px">
+      <button class="btn btn-outline" onclick="goStep(2)">← Adjust inputs</button>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- ══════════════ RATE CARD MODAL ══════════════ -->
+<div class="rc-overlay" id="rc_overlay">
+  <div class="rc-modal">
+    <div class="rc-modal-head">
+      <div>
+        <div class="rc-modal-title">⚙ Rate Card Editor</div>
+        <div class="rc-modal-sub">Internal use only — set your actual Fortix pricing. All figures feed the calculator.</div>
+      </div>
+      <button class="rc-close" onclick="closeRateCard()">✕</button>
+    </div>
+    <div class="rc-modal-body">
+
+      <div class="source-box">
+        <strong>Source transparency:</strong> Default prices are indicative estimates based on comparable platforms (Genetec, BriefCam, Avigilon). 4G hardware prices reflect current UK market pricing. SIM costs from EE/Vodafone M2M IoT tariffs. Fly-tipping figures sourced from DEFRA 2022/23 &amp; EPA 1990. Replace all <span class="src-badge src-est">estimated</span> rows with your actual Fortix COGS before client use.
+      </div>
+
+      <!-- Package pricing -->
+      <div class="rc-section">
+        <div class="rc-section-title">Package pricing (£/site/month, flat rate) <span class="src-badge src-est">estimated</span></div>
+        <table class="rc-table">
+          <tr><th>Package</th><th>Monthly price (£/site)</th><th>Max AI models</th><th>Camera channels</th></tr>
+          <tr>
+            <td class="td-name">Standard<div class="td-desc">Up to 4 AI models — options: 4 or 8 camera channels</div></td>
+            <td><input type="number" id="rc_pkg_standard" value="850" min="0" oninput="rcChanged(this)"></td>
+            <td><input type="number" id="rc_pkg_standard_mods" value="4" min="1" max="15" oninput="rcChanged(this)"></td>
+            <td><input type="number" id="rc_pkg_standard_ch" value="8" min="1" oninput="rcChanged(this)"></td>
+          </tr>
+          <tr>
+            <td class="td-name">Premium<div class="td-desc">Up to 4 AI models included</div></td>
+            <td><input type="number" id="rc_pkg_premium" value="1400" min="0" oninput="rcChanged(this)"></td>
+            <td><input type="number" id="rc_pkg_premium_mods" value="4" min="1" max="15" oninput="rcChanged(this)"></td>
+            <td><input type="number" id="rc_pkg_premium_ch" value="16" min="1" oninput="rcChanged(this)"></td>
+          </tr>
+          <tr>
+            <td class="td-name">Premium Plus<div class="td-desc">Up to 8 AI models, up to 32 channels</div></td>
+            <td><input type="number" id="rc_pkg_premiumplus" value="1800" min="0" oninput="rcChanged(this)"></td>
+            <td><input type="number" id="rc_pkg_premiumplus_mods" value="8" min="1" max="15" oninput="rcChanged(this)"></td>
+            <td><input type="number" id="rc_pkg_premiumplus_ch" value="32" min="1" oninput="rcChanged(this)"></td>
+          </tr>
+          <tr>
+            <td class="td-name">Enterprise<div class="td-desc">Up to 8 AI models + custom training included</div></td>
+            <td><input type="number" id="rc_pkg_enterprise" value="2200" min="0" oninput="rcChanged(this)"></td>
+            <td><input type="number" id="rc_pkg_enterprise_mods" value="8" min="1" max="15" oninput="rcChanged(this)"></td>
+            <td><input type="number" id="rc_pkg_enterprise_ch" value="9999" min="1" oninput="rcChanged(this)"></td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Custom training fee -->
+      <div class="rc-section">
+        <div class="rc-section-title">Custom model training fee <span class="src-badge src-est">estimated</span></div>
+        <table class="rc-table">
+          <tr><th>Item</th><th>Fee (£)</th><th>Basis</th></tr>
+          <tr>
+            <td class="td-name">Custom model training — one-off<div class="td-desc">Train a bespoke AI model on client footage. Enterprise package only.</div></td>
+            <td><input type="number" id="rc_custom_training" value="1500" min="0" oninput="rcChanged(this)"></td>
+            <td style="font-size:10px;color:var(--ink3)">per deployment</td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- 4G hardware -->
+      <div class="rc-section">
+        <div class="rc-section-title">4G camera hardware &amp; connectivity <span class="src-badge src-market">UK market</span></div>
+        <table class="rc-table">
+          <tr><th>Item</th><th>Cost (£)</th><th>Unit</th></tr>
+          <tr class="teal-r"><td class="td-name">Covert 4G camera<div class="td-desc">Discreet form factor — FTP event-push capable</div></td><td><input type="number" id="rc_cam_budget" value="120" min="0" oninput="rcChanged(this)"></td><td style="font-size:10px;color:var(--ink3)">per camera</td></tr>
+          <tr class="teal-r"><td class="td-name">Bullet 5G camera<div class="td-desc">Static bullet style — 5G, IP67, RTSP real-time streaming</div></td><td><input type="number" id="rc_cam_mid" value="280" min="0" oninput="rcChanged(this)"></td><td style="font-size:10px;color:var(--ink3)">per camera</td></tr>
+          <tr class="teal-r"><td class="td-name">PTZ 5G camera<div class="td-desc">Pan Tilt Zoom style — 5G, IP67, RTSP real-time streaming</div></td><td><input type="number" id="rc_cam_pro" value="580" min="0" oninput="rcChanged(this)"></td><td style="font-size:10px;color:var(--ink3)">per camera</td></tr>
+          <tr class="teal-r"><td class="td-name">ANPR 5G camera<div class="td-desc">Static bullet style ANPR — 5G, IP67, RTSP real-time streaming</div></td><td><input type="number" id="rc_cam_anpr" value="750" min="0" oninput="rcChanged(this)"></td><td style="font-size:10px;color:var(--ink3)">per camera</td></tr>
+          <tr class="teal-r"><td class="td-name">Solar + battery kit<div class="td-desc">Off-grid / remote deployments</div></td><td><input type="number" id="rc_solar" value="180" min="0" oninput="rcChanged(this)"></td><td style="font-size:10px;color:var(--ink3)">per camera</td></tr>
+          <tr class="teal-r"><td class="td-name">SIM — event-push<div class="td-desc">~500MB/mo, EE/Vodafone M2M IoT</div></td><td><input type="number" id="rc_sim_event" value="8" min="0" oninput="rcChanged(this)"></td><td style="font-size:10px;color:var(--ink3)">per camera/mo</td></tr>
+          <tr class="teal-r"><td class="td-name">SIM — live/streaming<div class="td-desc">~2–5GB/mo per camera</div></td><td><input type="number" id="rc_sim_live" value="18" min="0" oninput="rcChanged(this)"></td><td style="font-size:10px;color:var(--ink3)">per camera/mo</td></tr>
+          <tr class="teal-r"><td class="td-name">Private APN / WireGuard setup<div class="td-desc">One-off per deployment</div></td><td><input type="number" id="rc_apn" value="350" min="0" oninput="rcChanged(this)"></td><td style="font-size:10px;color:var(--ink3)">per deployment</td></tr>
+          <tr class="teal-r"><td class="td-name">Camera configuration<div class="td-desc">Camera set up, SIM APN settings, FTP config</div></td><td><input type="number" id="rc_cam_install" value="150" min="0" oninput="rcChanged(this)"></td><td style="font-size:10px;color:var(--ink3)">per camera</td></tr>
+        </table>
+      </div>
+
+      <!-- Standard delivery -->
+      <div class="rc-section">
+        <div class="rc-section-title">Standard delivery costs <span class="src-badge src-est">estimated</span></div>
+        <table class="rc-table">
+          <tr><th>Item</th><th>Cost (£)</th><th>Basis</th></tr>
+          <tr><td class="td-name">IP Camera/NVR — AI Edge Box 4ch<div class="td-desc">On-site AI Edge Box for up to 4 IP cameras / NVR channels</div></td><td><input type="number" id="rc_edgebox_4ch" value="500" min="0" oninput="rcChanged(this)"></td><td style="font-size:10px;color:var(--ink3)">per site</td></tr>
+          <tr><td class="td-name">IP Camera/NVR — AI Edge Box 8ch<div class="td-desc">On-site AI Edge Box for up to 8 IP cameras / NVR channels</div></td><td><input type="number" id="rc_edgebox_8ch" value="800" min="0" oninput="rcChanged(this)"></td><td style="font-size:10px;color:var(--ink3)">per site</td></tr>
+          <tr><td class="td-name">IP Camera/NVR — AI Edge Box 16ch<div class="td-desc">On-site AI Edge Box for up to 16 IP cameras / NVR channels</div></td><td><input type="number" id="rc_edgebox_16ch" value="1200" min="0" oninput="rcChanged(this)"></td><td style="font-size:10px;color:var(--ink3)">per site</td></tr>
+          <tr><td class="td-name">IP Camera/NVR — AI Edge Box 32ch<div class="td-desc">On-site AI Edge Box for up to 32 IP cameras / NVR channels</div></td><td><input type="number" id="rc_edgebox_32ch" value="1800" min="0" oninput="rcChanged(this)"></td><td style="font-size:10px;color:var(--ink3)">per site</td></tr>
+          <tr><td class="td-name">Wired installation &amp; commissioning<div class="td-desc">Engineer visit, RTSP config, network setup</div></td><td><input type="number" id="rc_install" value="800" min="0" oninput="rcChanged(this)"></td><td style="font-size:10px;color:var(--ink3)">per site, one-off</td></tr>
+          <tr><td class="td-name">Support &amp; SLA<div class="td-desc">% of annual software cost</div></td><td><div class="suffix-wrap"><span class="suffix">%</span><input type="number" id="rc_support_pct" value="15" min="0" max="40" oninput="rcChanged(this)"></div></td><td style="font-size:10px;color:var(--ink3)">of licence + modules</td></tr>
+        </table>
+      </div>
+
+      <!-- Fly-tipping benchmarks -->
+      <div class="rc-section">
+        <div class="rc-section-title">Fly-tipping enforcement benchmarks</div>
+        <table class="rc-table">
+          <tr><th>Benchmark</th><th>Default value</th><th>Source</th></tr>
+          <tr class="fly-r"><td class="td-name">Clearance cost per incident (£)</td><td><input type="number" id="rc_fly_clr" value="850" min="0" oninput="rcChanged(this)"></td><td><span class="src-badge src-defra">DEFRA 2022/23</span></td></tr>
+          <tr class="fly-r"><td class="td-name">FPN — lower band (£)</td><td><input type="number" id="rc_fpn_low" value="400" min="150" oninput="rcChanged(this)"></td><td><span class="src-badge src-defra">EPA 1990</span></td></tr>
+          <tr class="fly-r"><td class="td-name">FPN — upper band (£)</td><td><input type="number" id="rc_fpn_high" value="1000" min="150" oninput="rcChanged(this)"></td><td><span class="src-badge src-defra">EPA 1990</span></td></tr>
+          <tr class="fly-r"><td class="td-name">Enforcement officer rate (£/hr)</td><td><input type="number" id="rc_fly_officer" value="35" min="10" oninput="rcChanged(this)"></td><td><span class="src-badge src-est">estimated</span></td></tr>
+        </table>
+      </div>
+
+    </div>
+    <div class="rc-modal-foot">
+      <button class="btn btn-outline btn-sm" onclick="rcReset()">Reset defaults</button>
+      <div class="btn-row">
+        <button class="btn btn-outline btn-sm" onclick="rcExport()">Export JSON</button>
+        <button class="btn btn-primary btn-sm" onclick="rcSave()">Save &amp; apply →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Config (mutated by rate card) ──────────────────────────────
+let CFG = {
+  // Package pricing replaces per-module pricing
+  packages: {
+    standard:    { label: 'Standard',     monthly: 850,  maxModules: 4, channels: 8    },
+    premium:     { label: 'Premium',      monthly: 1400, maxModules: 4, channels: 16   },
+    premiumplus: { label: 'Premium Plus', monthly: 1800, maxModules: 8, channels: 32   },
+    enterprise:  { label: 'Enterprise',   monthly: 2200, maxModules: 8, channels: 9999 },
+  },
+  customTraining: { enabled: false, fee: 1500 }, // one-off per deployment, Enterprise only
+  // Modules are now included in package price — no individual pricing
+  // Labels and fly flag retained for savings logic
+  modules: {
+    shrinkage:  { label: 'Shrinkage / theft',     fly: false },
+    footfall:   { label: 'Footfall analytics',    fly: false },
+    ppe:        { label: 'PPE & safety',          fly: false },
+    forklift:   { label: 'Forklift proximity',    fly: false },
+    anpr:       { label: 'ANPR',                  fly: false },
+    queue:      { label: 'Queue management',      fly: false },
+    crowd:      { label: 'Crowd & occupancy',     fly: false },
+    incident:   { label: 'Incident detection',    fly: false },
+    flytipping: { label: 'Fly-tipping detection', fly: true  },
+    flyanpr:    { label: 'Fly-tip ANPR',          fly: true  },
+    asb:        { label: 'Anti-social behaviour',  fly: false },
+    facialrec:  { label: 'Facial recognition',     fly: false },
+    multizone:  { label: 'Multi-zone detection',   fly: false },
+    weapons:    { label: 'Weapons detection',       fly: false },
+    smokefire:  { label: 'Smoke & fire detection',  fly: false },
+    custommodel:{ label: 'Custom model training',   fly: false },
+  },
+  cam4g: {
+    budget: 120, mid: 280, pro: 580, anpr: 750,
+    solar: 180,
+    sim_event: 8, sim_live: 18,
+    apn: 350, install: 150,
+  },
+  edgebox: { '4ch': 500, '8ch': 800, '16ch': 1200, '32ch': 1800 }, install: 800, support_pct: 15,
+  fly_clr: 850, fly_officer: 35, fpn_low: 400, fpn_high: 1000,
+};
+
+// ── State ──────────────────────────────────────────────────────
+let use4G = false;
+let camMode = 'event';
+let useCustomTraining = false;
+const activeModules = new Set(['flytipping', 'flyanpr']);
+let currentStep = 1;
+let currentPackage = 'standard';
+
+// ── Step navigation ─────────────────────────────────────────────
+function goStep(n) {
+  currentStep = n;
+  [1,2,3].forEach(i => {
+    const p = document.getElementById('panel'+i);
+    const s = document.getElementById('step'+i);
+    p.style.display = i === n ? 'block' : 'none';
+    s.classList.toggle('active', i === n);
+    s.classList.toggle('done', i < n);
+  });
+  if (n === 2) applyIndustryBenchmarks(document.getElementById('industry').value);
+  if (n === 3) calc();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── IP section per-site edge box breakdown ─────────────────────
+function buildIPSiteBreakdown() {
+  const container = document.getElementById('ip_site_breakdown');
+  const totalEl   = document.getElementById('ip_edge_total');
+  if (!container) return;
+
+  const sites  = Math.max(1, +document.getElementById('sites').value || 1);
+  const orgCam = +document.getElementById('org_cameras').value || 1;
+
+  // Build site list — use siteData if available, otherwise single entry
+  let rows = [];
+  if (siteData.length > 0) {
+    rows = siteData.map(s => ({ name: s.name, cams: s.cams }));
+  } else {
+    rows = Array.from({ length: sites }, (_, i) => ({
+      name: sites === 1 ? 'Site 1' : 'Site ' + (i + 1),
+      cams: Math.ceil(orgCam / sites)
+    }));
+  }
+
+  let grandTotal = 0;
+  container.innerHTML = rows.map((s, i) => {
+    const tier  = getSiteEdgeTier(s.cams);
+    const price = CFG.edgebox[tier] || 800;
+    grandTotal += price;
+    return `
+    <div style="display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:12px;padding:10px 14px;background:${i%2===0?'var(--white)':'var(--smoke)'};border:1.5px solid var(--line);border-radius:var(--r);margin-bottom:6px">
+      <div>
+        <div style="font-size:12px;font-weight:600;color:var(--ink2)">${s.name}</div>
+        <div style="font-size:11px;color:var(--ink3);margin-top:2px">${s.cams} camera${s.cams!==1?'s':''} → <strong style="color:var(--ink2)">${tier} AI Edge Box</strong></div>
+      </div>
+      <div style="font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);background:var(--smoke2);border-radius:6px;padding:3px 8px">${tier}</div>
+      <div style="font-family:var(--mono);font-size:15px;font-weight:700;color:var(--green);white-space:nowrap">£${price.toLocaleString('en-GB')}</div>
+    </div>`;
+  }).join('');
+
+  if (totalEl) totalEl.textContent = '£' + grandTotal.toLocaleString('en-GB');
+
+  // Update hidden inputs for cost model
+  const avgCams = rows.length ? Math.round(rows.reduce((a,r)=>a+r.cams,0)/rows.length) : 1;
+  const camInput  = document.getElementById('cams_per_site');
+  const tierInput = document.getElementById('edgebox_tier');
+  if (camInput)  camInput.value  = avgCams;
+  if (tierInput) tierInput.value = getSiteEdgeTier(avgCams);
+  window._perSiteEdgeTotal = grandTotal;
+}
+
+// ── Camera type checkboxes (org card) ─────────────────────────
+let camTypeIP  = false;
+let camType4G  = false;
+
+function toggleCamType(type) {
+  if (type === 'ip') {
+    camTypeIP = !camTypeIP;
+  } else {
+    camType4G = !camType4G;
+  }
+  renderCamTypeChecks();
+  // Rebuild per-site rows to show/hide edge box info
+  if (siteData.length > 0) buildSiteRows();
+  // Rebuild IP edge box breakdown if IP type active
+  if (camTypeIP) buildIPSiteBreakdown();
+  // Mirror to the tile toggles in Camera & Connectivity card
+  const ipSection  = document.getElementById('section_ip');
+  const fg4Section = document.getElementById('section_4g');
+  const ipTile     = document.getElementById('tile_ip');
+  const fg4Tile    = document.getElementById('tile_4g');
+  const ipCta      = document.getElementById('tile_ip_cta');
+  const fg4Cta     = document.getElementById('tile_4g_cta');
+  if (ipSection)  ipSection.style.display  = camTypeIP  ? 'block' : 'none';
+  if (fg4Section) fg4Section.style.display = camType4G  ? 'block' : 'none';
+  if (ipTile) {
+    ipTile.style.borderColor = camTypeIP  ? 'var(--green)' : 'var(--green-border)';
+    ipTile.style.boxShadow   = camTypeIP  ? '0 0 0 3px rgba(29,78,216,.12)' : '';
+  }
+  if (fg4Tile) {
+    fg4Tile.style.borderColor = camType4G ? 'var(--teal)' : 'var(--teal-border)';
+    fg4Tile.style.boxShadow   = camType4G ? '0 0 0 3px rgba(3,105,161,.12)' : '';
+  }
+  if (ipCta)  ipCta.textContent  = camTypeIP  ? '▲ Hide IP camera settings'   : '▼ Configure IP cameras';
+  if (fg4Cta) fg4Cta.textContent = camType4G  ? '▲ Hide 4G / 5G settings'     : '▼ Configure 4G / 5G cameras';
+  use4G = camType4G;
+  calc();
+}
+
+function renderCamTypeChecks() {
+  const ipBox    = document.getElementById('chk_ip_box');
+  const fg4Box   = document.getElementById('chk_4g_box');
+  const ipLabel  = document.getElementById('chk_ip_label');
+  const fg4Label = document.getElementById('chk_4g_label');
+  const tick = '<svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  if (ipBox) {
+    ipBox.innerHTML           = camTypeIP  ? tick : '';
+    ipBox.style.background    = camTypeIP  ? 'var(--green)'       : 'var(--white)';
+    ipBox.style.borderColor   = camTypeIP  ? 'var(--green)'       : 'var(--line)';
+  }
+  if (fg4Box) {
+    fg4Box.innerHTML          = camType4G  ? tick : '';
+    fg4Box.style.background   = camType4G  ? 'var(--teal)'        : 'var(--white)';
+    fg4Box.style.borderColor  = camType4G  ? 'var(--teal)'        : 'var(--line)';
+  }
+  if (ipLabel) {
+    ipLabel.style.borderColor   = camTypeIP  ? 'var(--green)'     : 'var(--line)';
+    ipLabel.style.background    = camTypeIP  ? 'var(--green-pale)': 'var(--smoke)';
+  }
+  if (fg4Label) {
+    fg4Label.style.borderColor  = camType4G  ? 'var(--teal)'      : 'var(--line)';
+    fg4Label.style.background   = camType4G  ? 'var(--teal-pale)' : 'var(--smoke)';
+  }
+}
+
+
+let siteData = []; // array of { name, cams }
+
+function onSitesChange() {
+  const n = Math.max(1, Math.min(500, +document.getElementById('sites').value || 1));
+  const panel = document.getElementById('per_site_panel');
+  const orgCamHint = document.getElementById('org_cameras_hint');
+
+  const orgCamInput = document.getElementById('org_cameras');
+  if (n > 1) {
+    // Multi-site: per-site inputs drive the total — make field read-only
+    if (orgCamInput) {
+      orgCamInput.readOnly = true;
+      orgCamInput.style.background = 'var(--smoke2)';
+      orgCamInput.style.cursor = 'default';
+    }
+    // Grow or shrink siteData — new sites always default to 1 camera
+    while (siteData.length < n) {
+      siteData.push({ name: 'Site ' + (siteData.length + 1), cams: 1 });
+    }
+    siteData = siteData.slice(0, n);
+    panel.style.display = 'block';
+    orgCamHint.textContent = 'Default — overridden per site below';
+    buildSiteRows();
+  } else {
+    siteData = [];
+    panel.style.display = 'none';
+    if (orgCamInput) {
+      orgCamInput.readOnly = false;
+      orgCamInput.style.background = '';
+      orgCamInput.style.cursor = '';
+    }
+    if (orgCamHint) orgCamHint.textContent = 'Total cameras on site';
+  }
+  calc();
+}
+
+function buildSiteRows() {
+  const container = document.getElementById('site_rows');
+  const showEdge  = camTypeIP; // show edge box info when IP camera type is ticked
+  container.innerHTML = siteData.map((s, i) => {
+    const tier  = getSiteEdgeTier(s.cams);
+    const price = CFG.edgebox[tier] || 800;
+    const edgeInfo = showEdge
+      ? `<div style="margin-top:5px;font-size:10px;color:var(--ink3)">${tier} AI Edge Box — <span style="font-family:var(--mono);color:var(--green)">£${price.toLocaleString('en-GB')}</span></div>`
+      : '';
+    return `
+    <div style="background:var(--smoke);border:1.5px solid var(--line);border-radius:var(--r);padding:10px 12px">
+      <input value="${s.name}" placeholder="Site ${i+1}" maxlength="30"
+        style="width:100%;background:none;border:none;font-size:11px;font-weight:600;color:var(--ink2);margin-bottom:6px;outline:none"
+        oninput="siteData[${i}].name=this.value">
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="font-size:11px;color:var(--ink3);white-space:nowrap">Cameras:</span>
+        <input type="number" value="${s.cams}" min="0" max="999"
+          style="width:60px;font-family:var(--mono);font-size:13px;font-weight:600;color:var(--green);border:1.5px solid var(--line);border-radius:6px;padding:3px 6px;background:var(--white)"
+          oninput="siteData[${i}].cams=Math.max(0,+this.value||0);buildSiteRows();updateSiteTotals()">
+      </div>
+      ${edgeInfo}
+    </div>`;
+  }).join('');
+  updateSiteTotals();
+}
+
+function getSiteEdgeTier(cams) {
+  if (currentPackage === 'standard') return cams <= 4 ? '4ch' : '8ch';
+  if (currentPackage === 'premium')  return cams <= 4 ? '4ch' : cams <= 8 ? '8ch' : '16ch';
+  return cams <= 8 ? '8ch' : cams <= 16 ? '16ch' : '32ch';
+}
+
+function updateSiteTotals() {
+  if (!siteData.length) return;
+  const total = siteData.reduce((a, s) => a + s.cams, 0);
+  const avg   = total / siteData.length;
+
+  // Per-site is source of truth — write sum back to org cameras field
+  const orgCamInput = document.getElementById('org_cameras');
+  if (orgCamInput) orgCamInput.value = total;
+
+  // Update summary bar
+  const allocEl = document.getElementById('site_cam_allocated');
+  const remWrap = document.getElementById('site_cam_remaining_wrap');
+  if (allocEl)  { allocEl.textContent = total; allocEl.style.color = 'var(--green)'; }
+  if (remWrap)  remWrap.textContent = '';
+
+  // Compute per-site edge box total (only relevant when IP type selected)
+  if (camTypeIP) {
+    const edgeBoxTotal = siteData.reduce((sum, s) => {
+      const tier = getSiteEdgeTier(s.cams);
+      return sum + (CFG.edgebox[tier] || 800);
+    }, 0);
+    const edgeTotalEl = document.getElementById('site_edge_total');
+    if (edgeTotalEl) edgeTotalEl.textContent = '£' + edgeBoxTotal.toLocaleString('en-GB');
+    window._perSiteEdgeTotal = edgeBoxTotal;
+    const wrap = document.getElementById('site_edge_total_wrap');
+    if (wrap) wrap.style.display = 'inline';
+  } else {
+    window._perSiteEdgeTotal = null;
+    const wrap = document.getElementById('site_edge_total_wrap');
+    if (wrap) wrap.style.display = 'none';
+  }
+
+  // Push average to cams_per_site for cost model
+  const camInput = document.getElementById('cams_per_site');
+  if (camInput) camInput.value = Math.round(avg) || 1;
+  // Auto-select package based on total camera count across all sites
+  if (total > 0) selectPackageForCameras(total);
+  calc();
+}
+
+// ── Auto-select package based on camera count ─────────────────
+function selectPackageForCameras(cams) {
+  // Find the lowest package whose channel limit covers the camera count
+  const order = ['standard', 'premium', 'premiumplus', 'enterprise'];
+  for (const pkg of order) {
+    const ch = CFG.packages[pkg].channels;
+    if (ch >= cams || ch === 9999) {
+      if (pkg !== currentPackage) selectPackage(pkg);
+      return pkg;
+    }
+  }
+  selectPackage('enterprise');
+  return 'enterprise';
+}
+
+// ── Sync org-level camera count to camera config fields ────────
+function syncOrgCameras() {
+  const val = +document.getElementById('org_cameras').value || 1;
+  const camInput   = document.getElementById('cams_per_site');
+  const cam4gInput = document.getElementById('cam4g_count');
+  const ipOpen     = document.getElementById('section_ip').style.display  !== 'none';
+  const fg4Open    = document.getElementById('section_4g').style.display  !== 'none';
+  if (ipOpen)       { if (camInput)   camInput.value   = val; }
+  else if (fg4Open) { if (cam4gInput) cam4gInput.value = val; }
+  else {
+    if (camInput)   camInput.value   = val;
+    if (cam4gInput) cam4gInput.value = val;
+  }
+  // Auto-select package based on camera count
+  selectPackageForCameras(val);
+  // If per-site panel is open, update all rows to new default
+  if (siteData.length > 0) {
+    siteData.forEach(s => s.cams = val);
+    buildSiteRows();
+  }
+  calc();
+}
+
+
+function toggleCamSection(type) {
+  const ipSection  = document.getElementById('section_ip');
+  const fg4Section = document.getElementById('section_4g');
+  const ipTile     = document.getElementById('tile_ip');
+  const fg4Tile    = document.getElementById('tile_4g');
+  const ipCta      = document.getElementById('tile_ip_cta');
+  const fg4Cta     = document.getElementById('tile_4g_cta');
+
+  const ipOpen  = ipSection.style.display  !== 'none';
+  const fg4Open = fg4Section.style.display !== 'none';
+
+  if (type === 'ip') {
+    // If already open, close it — otherwise open it and close 4G
+    const nowOpen = !ipOpen;
+    ipSection.style.display   = nowOpen ? 'block' : 'none';
+    fg4Section.style.display  = 'none';
+
+    ipTile.style.borderColor  = nowOpen ? 'var(--green)'       : 'var(--green-border)';
+    ipTile.style.boxShadow    = nowOpen ? '0 0 0 3px rgba(29,78,216,.12)' : '';
+    fg4Tile.style.borderColor = 'var(--teal-border)';
+    fg4Tile.style.boxShadow   = '';
+
+    ipCta.textContent  = nowOpen ? '▲ Hide IP camera settings'   : '▼ Configure IP cameras';
+    fg4Cta.textContent = '▼ Configure 4G / 5G cameras';
+    use4G = false;
+  } else {
+    // If already open, close it — otherwise open it and close IP
+    const nowOpen = !fg4Open;
+    fg4Section.style.display  = nowOpen ? 'block' : 'none';
+    ipSection.style.display   = 'none';
+
+    fg4Tile.style.borderColor = nowOpen ? 'var(--teal)'         : 'var(--teal-border)';
+    fg4Tile.style.boxShadow   = nowOpen ? '0 0 0 3px rgba(3,105,161,.12)' : '';
+    ipTile.style.borderColor  = 'var(--green-border)';
+    ipTile.style.boxShadow    = '';
+
+    fg4Cta.textContent = nowOpen ? '▲ Hide 4G / 5G settings'    : '▼ Configure 4G / 5G cameras';
+    ipCta.textContent  = '▼ Configure IP cameras';
+    use4G = nowOpen;
+  }
+  // Keep org-card checkboxes in sync
+  camTypeIP  = document.getElementById('section_ip').style.display  !== 'none';
+  camType4G  = document.getElementById('section_4g').style.display  !== 'none';
+  renderCamTypeChecks();
+  calc();
+}
+
+// ── 4G toggle (now driven by tile click) ──────────────────────
+function toggle4G() {
+  // Legacy — kept for safety, tile handles toggling now
+  toggleCamSection('4g');
+}
+
+// ── Camera mode ────────────────────────────────────────────────
+function setCamMode(m) {
+  camMode = m;
+  document.getElementById('cammode_event').classList.toggle('active', m === 'event');
+  document.getElementById('cammode_live').classList.toggle('active', m === 'live');
+  calc();
+}
+
+// ── Package selection ──────────────────────────────────────────
+function selectPackage(pkg) {
+  currentPackage = pkg;
+  ['standard','premium','premiumplus','enterprise'].forEach(p => {
+    document.getElementById('pkg_'+p).classList.toggle('active', p === pkg);
+  });
+  const pkgCfg = CFG.packages[pkg];
+  const cap = pkgCfg.maxModules;
+  document.getElementById('mod_cap').textContent = cap;
+  document.getElementById('cap_warning_limit').textContent = cap;
+  document.getElementById('cap_warning_pkg').textContent = pkgCfg.label;
+  document.getElementById('channel_limit_display').textContent =
+    pkgCfg.channels === 9999 ? 'Unlimited channels (' + pkgCfg.label + ')' : pkgCfg.channels + ' channels/site (' + pkgCfg.label + ')';
+
+  // ── Sync IP camera count max and edge box tier options per package ──
+  const camInput    = document.getElementById('cams_per_site');
+  const edgeSelect  = document.getElementById('edgebox_tier');
+  if (camInput && edgeSelect) {
+    if (pkg === 'standard') {
+      // Standard: options up to 8, only 4ch or 8ch edge box
+      edgeSelect.innerHTML =
+        '<option value="4ch">4ch — IP Camera/NVR AI Edge Box</option>' +
+        '<option value="8ch" selected>8ch — IP Camera/NVR AI Edge Box</option>';
+      // Clamp selection to max 8
+      if (+camInput.value > 8) camInput.value = 8;
+      if (!['4ch','8ch'].includes(edgeSelect.value)) edgeSelect.value = '8ch';
+    } else if (pkg === 'premium') {
+      // Premium: up to 16, 4ch/8ch/16ch
+      edgeSelect.innerHTML =
+        '<option value="4ch">4ch — IP Camera/NVR AI Edge Box</option>' +
+        '<option value="8ch">8ch — IP Camera/NVR AI Edge Box</option>' +
+        '<option value="16ch" selected>16ch — IP Camera/NVR AI Edge Box</option>';
+      if (+camInput.value > 16) camInput.value = 16;
+      if (!['4ch','8ch','16ch'].includes(edgeSelect.value)) edgeSelect.value = '16ch';
+    } else {
+      // Premium Plus & Enterprise: all tiers
+      edgeSelect.innerHTML =
+        '<option value="8ch">8ch — IP Camera/NVR AI Edge Box</option>' +
+        '<option value="16ch">16ch — IP Camera/NVR AI Edge Box</option>' +
+        '<option value="32ch" selected>32ch — IP Camera/NVR AI Edge Box</option>';
+      if (!['8ch','16ch','32ch'].includes(edgeSelect.value)) edgeSelect.value = '32ch';
+    }
+  }
+
+  // Show/hide custom training toggle (Enterprise only)
+  document.getElementById('custom_training_wrap').style.display = pkg === 'enterprise' ? 'block' : 'none';
+  if (pkg !== 'enterprise' && useCustomTraining) {
+    useCustomTraining = false;
+    document.getElementById('toggle_custom').classList.remove('on');
+    document.getElementById('custom_sw_track').classList.remove('on');
+  }
+  // Enforce cap — deselect excess modules if switching down
+  if (activeModules.size > cap) {
+    const excess = [...activeModules].slice(cap);
+    excess.forEach(k => {
+      activeModules.delete(k);
+      document.querySelectorAll('#module_grid .mod-toggle').forEach(el => {
+        if (el.getAttribute('onclick') && el.getAttribute('onclick').includes("'" + k + "'")) {
+          el.classList.remove('active');
+        }
+      });
+    });
+  }
+  updateModToggles();
+  calc();
+}
+
+// ── Custom training toggle ──────────────────────────────────────
+function toggleCustomTraining() {
+  if (currentPackage !== 'enterprise') return;
+  useCustomTraining = !useCustomTraining;
+  document.getElementById('toggle_custom').classList.toggle('on', useCustomTraining);
+  document.getElementById('custom_sw_track').classList.toggle('on', useCustomTraining);
+  calc();
+}
+
+// ── Module toggle ──────────────────────────────────────────────
+function updateModToggles() {
+  const pkg = CFG.packages[currentPackage];
+  const cap = pkg.maxModules;
+  const atCap = activeModules.size >= cap;
+  document.getElementById('cap_warning').style.display = atCap ? 'block' : 'none';
+  // Dim non-active toggles when at cap
+  document.querySelectorAll('#module_grid .mod-toggle').forEach(el => {
+    const onclick = el.getAttribute('onclick') || '';
+    const match = onclick.match(/'([^']+)'/);
+    if (match) {
+      const key = match[1];
+      if (atCap && !activeModules.has(key)) {
+        el.style.opacity = '0.4';
+        el.style.pointerEvents = 'none';
+      } else {
+        el.style.opacity = '';
+        el.style.pointerEvents = '';
+      }
+    }
+  });
+}
+
+function toggleMod(el, key) {
+  const pkg = CFG.packages[currentPackage];
+  const cap = pkg.maxModules;
+  // If trying to add and already at cap, block
+  if (!activeModules.has(key) && activeModules.size >= cap) return;
+  el.classList.toggle('active');
+  activeModules.has(key) ? activeModules.delete(key) : activeModules.add(key);
+  const flyActive = activeModules.has('flytipping') || activeModules.has('flyanpr');
+  document.getElementById('flybox').classList.toggle('visible', flyActive);
+  document.getElementById('mod_count').textContent = activeModules.size;
+  updateModToggles();
+  calc();
+}
+
+// ── Industry benchmark data (sourced from UK government & industry reports) ──
+const INDUSTRY_BENCHMARKS = {
+  retail: {
+    label: 'Retail / Fashion',
+    sources: 'BRC Retail Crime Report 2024, Retail Economics/Thruvision 2023, Deloitte Shrink Survey 2024',
+    fte: 4,
+    fte_cost: 30000,
+    shrinkage_rate: 1.7,  // BRC: UK retail shrink avg 1.4–1.7% of turnover (2024)
+    insurance_cost: 32000,
+    incident_mgmt_cost: 18000,
+    vandalism_cost: 9500,
+    injury_cost: 14000,
+    false_alarm_cost: 4500,
+    downtime_cost: 22000,
+    ins_red: 15,
+    inc_vol_red: 35,
+    hints: {
+      shrinkage: 'BRC 2024: UK retail shrink avg 1.7% of revenue. Fashion/apparel: up to 2.1% (FashionNetwork)',
+      insurance: 'Retail liability + property insurance. BRC: retailers spend £1.8bn/yr on prevention measures',
+      incident: 'Violence/abuse incidents at 2,000/day (BRC 2024). Investigation + legal costs per site',
+      vandalism: 'Shopfitting damage, graffiti, ram-raid repairs. Avg £9,500/site/yr (sector estimates)',
+      injury: 'Retail above HSE avg for non-fatal injuries. Avg case cost £9,100 (HSE 2023/24)',
+      false_alarm: 'CCTV false alarm callouts + disruption. Sector avg 4–6 per site per year',
+      downtime: 'Trading disruption from incidents, evacuations, police attendance'
+    },
+    bench_rows: [
+      { label: 'UK retail theft total (2023)', value: '£7.9bn', source: 'Retail Economics / Thruvision' },
+      { label: 'Average shrink rate', value: '1.7% of revenue', source: 'BRC 2024' },
+      { label: 'Employee theft share', value: '40% of total losses', source: 'Retail Economics 2023' },
+      { label: 'Retailer prevention spend', value: '£1.8bn/yr UK total', source: 'BRC 2024' },
+      { label: 'Violence incidents', value: '2,000+/day UK-wide', source: 'BRC 2024' },
+      { label: 'Shoplifting increase', value: '+24% H1 2024', source: 'Council on Criminal Justice' },
+    ]
+  },
+  warehouse: {
+    label: 'Warehouse / Logistics',
+    sources: 'NaVCIS 2024, Road Haulage Association 2024, TAPA EMEA, Logistics UK 2023',
+    fte: 5,
+    fte_cost: 32000,
+    shrinkage_rate: 0.8,
+    insurance_cost: 55000,
+    incident_mgmt_cost: 28000,
+    vandalism_cost: 14000,
+    injury_cost: 42000,   // HSE: transport/storage above-average injury rate
+    false_alarm_cost: 7500,
+    downtime_cost: 65000, // Cargo theft causes major operational disruption
+    ins_red: 18,
+    inc_vol_red: 30,
+    hints: {
+      shrinkage: 'Warehouse theft: employees account for 42.6% of stock loss (Retail Economics 2023)',
+      insurance: 'Cargo + liability insurance. Freight crime pushing premiums up significantly (RHA 2024)',
+      incident: 'NaVCIS: 5,373 cargo theft incidents UK 2023 = £68m. Investigation + recovery costs',
+      vandalism: 'Perimeter breaches, vehicle damage, racking damage from unauthorised access',
+      injury: 'HSE 2023/24: transport & storage above-average non-fatal injury rate. £1.4bn sector cost',
+      false_alarm: 'Intruder alarm callouts, security patrols. High frequency in 24/7 operations',
+      downtime: 'Cargo theft causes supply chain disruption. Avg indirect cost 3× direct theft value (NaVCIS)'
+    },
+    bench_rows: [
+      { label: 'UK freight crime cost (2024)', value: '£111.5m', source: 'RHA / NaVCIS 2024' },
+      { label: 'Cargo theft incidents (2023)', value: '5,373 recorded', source: 'NaVCIS 2023' },
+      { label: 'True net cost (incl. indirect)', value: '~£460m/yr', source: 'Logistics UK 2023' },
+      { label: 'Warehouse share of EU freight crime', value: '41% of incidents', source: 'TAPA EMEA' },
+      { label: 'Manufacturing sector HSE cost', value: '£1.4bn/yr', source: 'HSE 2023' },
+      { label: 'Freight crime rise 2023→2024', value: '+64% by value', source: 'Fleetnews / RHA 2025' },
+    ]
+  },
+  healthcare: {
+    label: 'Healthcare',
+    sources: 'NHS Protect, HSE 2023/24, NHS Resolution, CQC 2024',
+    fte: 8,
+    fte_cost: 36000,
+    shrinkage_rate: 0.4,
+    insurance_cost: 48000,
+    incident_mgmt_cost: 38000,
+    vandalism_cost: 11000,
+    injury_cost: 52000,   // NHS staff assaults + slip/trip. High incident rate
+    false_alarm_cost: 12000, // Fire alarm callouts very costly in NHS
+    downtime_cost: 45000,
+    ins_red: 12,
+    inc_vol_red: 25,
+    hints: {
+      shrinkage: 'Equipment theft, medication loss. NHS loses ~£900m/yr to procurement fraud & theft (NHS Protect)',
+      insurance: 'Clinical negligence + property + liability. NHS Resolution pays £2.6bn/yr in claims',
+      incident: 'NHS staff face 60,000+ physical assaults/yr. Investigation, legal, counselling costs',
+      vandalism: 'A&E vandalism, graffiti, car park damage. Significant cost to NHS estates',
+      injury: 'NHS: highest risk for violence/assault. HSE: health sector above avg injury cost per case',
+      false_alarm: 'NHS fire alarm callouts avg £1,200/callout from fire service. Very frequent false alarms',
+      downtime: 'Ward closures, A&E diversions, procedure delays from security incidents'
+    },
+    bench_rows: [
+      { label: 'NHS staff physical assaults/yr', value: '60,000+', source: 'NHS England 2023' },
+      { label: 'NHS Resolution claims paid', value: '£2.6bn/yr', source: 'NHS Resolution 2023/24' },
+      { label: 'HSE total workplace injury cost', value: '£22.9bn UK total', source: 'HSE 2023/24' },
+      { label: 'Health sector injury rate', value: 'Above UK average', source: 'HSE 2024/25' },
+      { label: 'NHS procurement fraud/theft', value: '~£900m/yr', source: 'NHS Protect' },
+      { label: 'Fire alarm false call cost (NHS)', value: '~£1,200/callout', source: 'Fire service tariff' },
+    ]
+  },
+  public: {
+    label: 'Public Sector / Local Authority',
+    sources: 'DEFRA 2023, Home Office ASB statistics 2024, CSEW 2024, Local Government Association 2023',
+    fte: 6,
+    fte_cost: 34000,
+    shrinkage_rate: 0.3,
+    insurance_cost: 35000,
+    incident_mgmt_cost: 42000,
+    vandalism_cost: 22000, // Public space vandalism costs councils significant sums
+    injury_cost: 24000,
+    false_alarm_cost: 8500,
+    downtime_cost: 18000,
+    ins_red: 12,
+    inc_vol_red: 30,
+    hints: {
+      shrinkage: 'Asset theft, equipment losses. Lower rate than commercial but significant in public spaces',
+      insurance: 'Public liability + property. Councils face increasing premium pressure from ASB claims',
+      incident: 'Home Office 2024: 1m ASB incidents reported to police. Officer time + legal costs',
+      vandalism: 'Local councils spend heavily on graffiti, fly-tipping site damage & repair (LGA data)',
+      injury: 'Public space incidents. Councils liable for Duty of Care — avg claim £24k (CSEW data)',
+      false_alarm: 'CCTV callouts + emergency service responses. Shropshire Council: £600k/yr on CCTV staff',
+      downtime: 'Public service disruption from incidents, road closures, site cordons'
+    },
+    bench_rows: [
+      { label: 'ASB incidents reported (2023)', value: '1 million/yr', source: 'Home Office 2024' },
+      { label: 'Adults experiencing ASB (2024)', value: '36%', source: 'CSEW / ONS 2024' },
+      { label: 'Fly-tipping incidents (2022/23)', value: '1.01 million', source: 'DEFRA 2023' },
+      { label: 'Fly-tip clearance cost (avg)', value: '£850/incident', source: 'DEFRA 2022/23' },
+      { label: 'FPN value range', value: '£400–£1,000', source: 'EPA 1990 (as amended)' },
+      { label: 'CCTV monitoring staff cost (ex.)', value: '£600k/yr', source: 'Shropshire Council 2024' },
+    ]
+  },
+  manufacturing: {
+    label: 'Manufacturing',
+    sources: 'HSE Manufacturing Statistics 2023, ABI 2024, EEF/Make UK, CBI',
+    fte: 5,
+    fte_cost: 35000,
+    shrinkage_rate: 0.6,
+    insurance_cost: 62000,
+    incident_mgmt_cost: 32000,
+    vandalism_cost: 16000,
+    injury_cost: 58000,  // Manufacturing: 46,000 non-fatal injuries, 15 fatalities 2022/23 (HSE)
+    false_alarm_cost: 9000,
+    downtime_cost: 85000, // Production downtime extremely costly in manufacturing
+    ins_red: 20,
+    inc_vol_red: 28,
+    hints: {
+      shrinkage: 'Raw material theft, finished goods loss. Often underreported — internal estimates 0.5–0.8%',
+      insurance: 'Employers liability + property + product liability. Manufacturing premiums above avg (ABI)',
+      incident: 'Employee injury claims, contractor incidents. Manufacturing: 46,000 non-fatal injuries (HSE 2023)',
+      vandalism: 'Equipment sabotage, perimeter breaches, vehicle damage in yard/loading areas',
+      injury: 'HSE 2023: 15 manufacturing fatalities. Sector economic cost £1.4bn/yr. Avg case: £17,000+',
+      false_alarm: 'Plant fire/gas alarms. High false alarm rate from process dust, steam, heat',
+      downtime: 'Production line stoppage from security incidents. Even 1 hr = significant loss in high-output sites'
+    },
+    bench_rows: [
+      { label: 'Manufacturing non-fatal injuries (2022/23)', value: '46,000', source: 'HSE 2023' },
+      { label: 'Manufacturing fatalities (2022/23)', value: '15', source: 'HSE 2023' },
+      { label: 'Sector ill health & injury cost', value: '£1.4bn/yr', source: 'HSE 2021/22' },
+      { label: 'Musculoskeletal disorders', value: '40% of ill-health cases', source: 'HSE 2023' },
+      { label: 'UK workplace injury total cost', value: '£22.9bn (2023/24)', source: 'HSE 2023/24' },
+      { label: 'Working days lost to injury/illness', value: '40.1 million/yr', source: 'HSE 2024/25' },
+    ]
+  },
+  property: {
+    label: 'Property Management',
+    sources: 'Housing Ombudsman 2024, Resolve ASB Report 2024, YouGov 2024, CSEW 2024, LGA 2024',
+    fte: 4,
+    fte_cost: 30000,
+    shrinkage_rate: 0.2,
+    insurance_cost: 28000,
+    incident_mgmt_cost: 24000,
+    vandalism_cost: 31000, // ASB vandalism major cost for property managers
+    injury_cost: 14000,
+    false_alarm_cost: 6500,
+    downtime_cost: 19000,
+    ins_red: 14,
+    inc_vol_red: 35,
+    hints: {
+      shrinkage: 'Equipment/asset theft from common areas, plant rooms, car parks. Lower rate sector',
+      insurance: 'Building + public liability. ASB drives premium increases. Avg residential portfolio cost',
+      incident: 'Resolve 2024: 5m ASB incidents/yr UK. Property managers: legal, mediation, eviction costs',
+      vandalism: 'YouGov/Resolve: ASB costs Brits £1bn+ in repairs. Graffiti, lift damage, door entry damage',
+      injury: 'Slip/trip in common areas, car parks. Property managers face significant liability exposure',
+      false_alarm: 'Communal fire alarm callouts. High frequency in multi-occupancy residential blocks',
+      downtime: 'Void periods from ASB-related departures, renovation time after damage incidents'
+    },
+    bench_rows: [
+      { label: 'UK ASB incidents nationwide', value: '5 million/yr', source: 'Resolve / YouGov 2024' },
+      { label: 'Adults experiencing ASB weekly', value: '11%', source: 'YouGov / Resolve 2024' },
+      { label: 'Social housing ASB affected', value: '26% of residents', source: 'DLUHC survey 2022' },
+      { label: 'ASB repair costs UK total', value: '£1bn+ in 5 years', source: 'Zurich / Resolve' },
+      { label: 'Avg vandalism repair cost', value: '£400+ per incident', source: 'YouGov 2024' },
+      { label: 'Housing Ombudsman maladmin rate', value: '71% (ASB cases)', source: 'Housing Ombudsman 2024/25' },
+    ]
+  },
+  security: {
+    label: 'Security',
+    sources: 'SIA Annual Report 2023, BSIA 2024, Securitas Technology UK, HSE 2023/24',
+    fte: 10,
+    fte_cost: 32000,  // SIA licensed officers: £28–35k incl. oncosts
+    shrinkage_rate: 0.3,
+    insurance_cost: 45000,
+    incident_mgmt_cost: 52000,
+    vandalism_cost: 12000,
+    injury_cost: 38000,  // Security officers: above-average assault/injury risk
+    false_alarm_cost: 18000, // High false alarm response cost — core business cost
+    downtime_cost: 28000,
+    ins_red: 20,
+    inc_vol_red: 40,
+    hints: {
+      shrinkage: 'Equipment theft (radios, uniforms, vehicles). Relatively low % but real cost in large operations',
+      insurance: 'Professional indemnity + public liability + employer liability. SIA-regulated cost base',
+      incident: 'High incident volume by nature. Avg response + report + debrief time per incident',
+      vandalism: 'Damage to vehicles, equipment. Security firm premises and deployed assets',
+      injury: 'SIA: security officers face high assault risk. Manned guarding: £15–20/hr (SSY 2025). Injury compensation high',
+      false_alarm: 'Keyholder/alarm response: £30–80/month per site. High volume of activations. Core cost driver',
+      downtime: 'Contract exposure from failed response SLAs. Penalty clauses, reputational cost'
+    },
+    bench_rows: [
+      { label: 'Manned guarding hourly rate (SIA)', value: '£15–£20/hr', source: 'SSY Security 2025' },
+      { label: '24/7 single guard annual cost', value: '£96,096 min', source: 'Securitas Technology UK' },
+      { label: 'CCTV monitoring vs guard saving', value: '60–70% cost reduction', source: 'Securitas Technology' },
+      { label: 'Keyholding & alarm response', value: '£30–80/site/month', source: 'SSY Security 2025' },
+      { label: 'UK workplace injury total cost', value: '£22.9bn (2023/24)', source: 'HSE 2023/24' },
+      { label: 'Remote CCTV monitoring cost', value: '~£150/camera/yr', source: 'Safeguard Monitoring 2025' },
+    ]
+  }
+};
+
+function applyIndustryBenchmarks(industry) {
+  const bm = INDUSTRY_BENCHMARKS[industry];
+  if (!bm) return;
+  const sites = Math.max(1, +document.getElementById('sites').value || 1);
+
+  // Scale insurance, incident, vandalism, injury, false alarm, downtime by site count vs baseline of 5
+  const scale = Math.max(0.5, sites / 5);
+
+  document.getElementById('security_fte').value       = bm.fte;
+  document.getElementById('fte_cost').value           = bm.fte_cost;
+  document.getElementById('shrinkage_rate').value     = bm.shrinkage_rate;
+  document.getElementById('insurance_cost').value     = Math.round(bm.insurance_cost * scale);
+  document.getElementById('incident_mgmt_cost').value = Math.round(bm.incident_mgmt_cost * scale);
+  document.getElementById('vandalism_cost').value     = Math.round(bm.vandalism_cost * scale);
+  document.getElementById('injury_cost').value        = Math.round(bm.injury_cost * scale);
+  document.getElementById('false_alarm_cost').value   = Math.round(bm.false_alarm_cost * scale);
+  document.getElementById('downtime_cost').value      = Math.round(bm.downtime_cost * scale);
+  document.getElementById('incident_reduction').value = bm.ins_red;
+  document.getElementById('incident_volume_reduction').value = bm.inc_vol_red;
+
+  // Update slider displays
+  document.getElementById('shr_rate_val').textContent  = bm.shrinkage_rate.toFixed(1);
+  document.getElementById('ins_red_val').textContent   = bm.ins_red + '%';
+  document.getElementById('inc_vol_val').textContent   = bm.inc_vol_red + '%';
+
+  // Update hints
+  document.getElementById('hint_shrinkage').textContent  = bm.hints.shrinkage;
+  document.getElementById('hint_insurance').textContent  = bm.hints.insurance;
+  document.getElementById('hint_incident').textContent   = bm.hints.incident;
+  document.getElementById('hint_vandalism').textContent  = bm.hints.vandalism;
+  document.getElementById('hint_injury').textContent     = bm.hints.injury;
+  document.getElementById('hint_false_alarm').textContent = bm.hints.false_alarm;
+  document.getElementById('hint_downtime').textContent   = bm.hints.downtime;
+
+  // Update banner
+  document.getElementById('banner_title').textContent  = bm.label + ' benchmarks';
+  document.getElementById('banner_sources').textContent = bm.sources;
+  document.getElementById('bench_industry_label').textContent = bm.label;
+
+  // Update benchmark table
+  document.getElementById('bench_rows').innerHTML = bm.bench_rows.map(r => `
+    <div style="padding:5px 0;border-bottom:1px solid var(--line)">
+      <div style="font-size:11px;color:var(--ink2);font-weight:500">${r.label}</div>
+      <div style="font-family:var(--mono);font-size:12px;color:var(--green);font-weight:500">${r.value} <span style="font-family:var(--sans);font-size:10px;color:var(--ink3);font-weight:400">— ${r.source}</span></div>
+    </div>`).join('');
+
+  calc();
+}
+
+
+function fmt(n) {
+  const abs = Math.abs(n);
+  if (abs >= 1000000) return '£' + (n / 1000000).toFixed(2) + 'M';
+  if (abs >= 1000)    return '£' + Math.round(n).toLocaleString('en-GB');
+  return '£' + Math.round(n);
+}
+function fmtK(n) { return Math.abs(n) >= 1000 ? '£' + (n/1000).toFixed(1) + 'k' : fmt(n); }
+
+// ── Main calculation ───────────────────────────────────────────
+function calc() {
+  // Rebuild IP edge box breakdown whenever calc runs
+  if (camTypeIP && document.getElementById('ip_site_breakdown')) buildIPSiteBreakdown();
+
+  const sites    = Math.max(1, +document.getElementById('sites').value || 1);
+  const camsW    = Math.max(0, +document.getElementById('cams_per_site').value || 0);
+  const revPer   = +document.getElementById('revenue').value || 500000;
+  const industry = document.getElementById('industry').value;
+  const secFte   = +document.getElementById('security_fte').value || 0;
+  const fteCost  = +document.getElementById('fte_cost').value || 34000;
+  const shrRate  = +document.getElementById('shrinkage_rate').value || 1;
+
+  // Expanded cost inputs
+  const insCost     = +document.getElementById('insurance_cost').value || 28000;
+  const incMgmtCost = +document.getElementById('incident_mgmt_cost').value || 15000;
+  const vandalCost  = +document.getElementById('vandalism_cost').value || 8000;
+  const injuryCost  = +document.getElementById('injury_cost').value || 18000;
+  const falseAlarm  = +document.getElementById('false_alarm_cost').value || 6000;
+  const downtimeCost= +document.getElementById('downtime_cost').value || 12000;
+  const insRed      = +document.getElementById('incident_reduction').value || 15;
+  const incVolRed   = +document.getElementById('incident_volume_reduction').value || 30;
+
+  // Safe slider label updates
+  const setTxt = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  setTxt('ins_red_val',  insRed + '%');
+  setTxt('shr_rate_val', (+shrRate).toFixed(1));
+  setTxt('inc_vol_val',  incVolRed + '%');
+
+  // Fly inputs
+  const flyInc   = +document.getElementById('fly_incidents').value || 0;
+  const flyClr   = +document.getElementById('fly_clearance').value || 850;
+  const flyFpnV  = +document.getElementById('fly_fpn').value || 400;
+  const flyDet   = +document.getElementById('fly_detection').value || 65;
+  const flyFpnR  = +document.getElementById('fly_fpn_rate').value || 25;
+  const flyDtr   = +document.getElementById('fly_deter').value || 35;
+  setTxt('fly_det_val',  flyDet + '%');
+  setTxt('fly_fpnr_val', flyFpnR + '%');
+  setTxt('fly_deter_val',flyDtr + '%');
+
+  // 4G active if section is visible
+  const fg4Sec = document.getElementById('section_4g');
+  use4G = fg4Sec ? fg4Sec.style.display !== 'none' : false;
+  const cam4gCount  = use4G ? Math.max(1, +document.getElementById('cam4g_count').value || 1) : 0;
+  const cam4gTierK  = use4G ? document.getElementById('cam4g_tier').value : 'mid';
+  const solarOpt    = use4G ? document.getElementById('cam4g_solar').value : 'none';
+  const apnOpt      = use4G ? document.getElementById('cam4g_apn').value : 'no';
+  const simRate     = camMode === 'live' ? CFG.cam4g.sim_live : CFG.cam4g.sim_event;
+  const camUnitPx   = CFG.cam4g[cam4gTierK];
+  const solarCount  = solarOpt === 'all' ? cam4gCount : solarOpt === 'some' ? Math.round(cam4gCount * .5) : 0;
+  const cam4gHw     = cam4gCount * camUnitPx;
+  const cam4gSolar  = solarCount * CFG.cam4g.solar;
+  const cam4gInst   = cam4gCount * CFG.cam4g.install;
+  const cam4gApn    = apnOpt === 'yes' ? CFG.cam4g.apn * sites : 0;
+  const cam4gOnetime = cam4gHw + cam4gSolar + cam4gInst + cam4gApn;
+  const cam4gSimAnn = cam4gCount * simRate * 12;
+
+  // Package
+  const pkg = CFG.packages[currentPackage];
+  const totalCams = sites * camsW + (use4G ? cam4gCount : 0);
+  const tierOK = totalCams <= pkg.channels * sites || pkg.channels === 9999;
+  if (document.getElementById('warn_tier')) {
+    document.getElementById('warn_tier').style.display = (!tierOK && use4G) ? 'block' : 'none';
+  }
+
+  // Costs — flat package price, no per-module stacking
+  const annPackage  = pkg.monthly * 12 * sites;
+  const annModules  = 0; // included in package
+  const customFee   = (useCustomTraining && currentPackage === 'enterprise') ? CFG.customTraining.fee : 0;
+  // Resolve edge box tier — auto-select for Standard based on camera count
+  const edgeSelect  = document.getElementById('edgebox_tier');
+  let edgeboxTier   = edgeSelect ? edgeSelect.value : '16ch';
+  if (currentPackage === 'standard' && edgeSelect) {
+    edgeboxTier = camsW <= 4 ? '4ch' : '8ch';
+    if (edgeSelect.value !== edgeboxTier) edgeSelect.value = edgeboxTier;
+  }
+  const edgeboxPrice = CFG.edgebox[edgeboxTier] || 1200;
+
+  // Update camera count hint
+  const camHint = document.getElementById('hint_cams_per_site');
+  if (camHint && camsW > 0) {
+    camHint.textContent = camsW + ' camera' + (camsW !== 1 ? 's' : '') + ' per site × ' + sites + ' site' + (sites !== 1 ? 's' : '') + ' = ' + (camsW * sites) + ' cameras total';
+  } else if (camHint) {
+    camHint.textContent = 'No wired cameras — 4G/5G only';
+  }
+  const edgeTotal = camsW > 0
+    ? (camTypeIP && window._perSiteEdgeTotal != null ? window._perSiteEdgeTotal : edgeboxPrice * sites)
+    : 0;
+  const installTotal = CFG.install * sites;
+  const supportAnn  = annPackage * (CFG.support_pct / 100);
+  const y1Cost = annPackage + edgeTotal + installTotal + supportAnn + cam4gOnetime + customFee;
+  const ongoing = annPackage + supportAnn + cam4gSimAnn;
+
+  const flyActive = activeModules.has('flytipping') || activeModules.has('flyanpr');
+  const totFlyInc  = flyInc * sites;
+  const deterred   = Math.round(totFlyInc * (flyDtr / 100));
+  const clrSaved   = deterred * flyClr;
+  const detected   = Math.round(totFlyInc * (flyDet / 100));
+  const staffSaved = detected * 2.5 * 0.6 * CFG.fly_officer;
+  const fpnIss     = Math.round(detected * (flyFpnR / 100));
+  const fpnRev     = fpnIss * flyFpnV;
+  const flyTotal   = flyActive ? (clrSaved + staffSaved + fpnRev) : 0;
+
+  // ── Savings — driven by real industry inputs ──────────────────
+  const savings = [];
+
+  // Shrinkage reduction (shrinkage module or any detection module that deters theft)
+  if (activeModules.has('shrinkage') || activeModules.has('facialrec') || activeModules.has('incident')) {
+    const shrSaving = (shrRate / 100) * revPer * sites * 0.35; // 35% of estimated loss prevented
+    savings.push({ l: 'Shrinkage / stock loss reduction', v: shrSaving, t: 'green' });
+  }
+
+  // Labour efficiency — monitoring FTE hours freed by AI (always applies)
+  const labourSaving = secFte * fteCost * 0.22; // 22% of security staff time freed from manual monitoring
+  if (labourSaving > 0) savings.push({ l: 'Monitoring labour efficiency', v: labourSaving, t: 'green' });
+
+  // Insurance premium reduction — AI monitoring reduces underwriter risk
+  const insPremSaving = insCost * (insRed / 100);
+  savings.push({ l: 'Insurance premium reduction', v: insPremSaving, t: 'green' });
+
+  // Incident management cost reduction — fewer incidents + faster resolution
+  const incMgmtSaving = incMgmtCost * (incVolRed / 100);
+  savings.push({ l: 'Incident management costs', v: incMgmtSaving, t: 'green' });
+
+  // Vandalism / damage reduction (ASB, incident, multi-zone, crowd modules)
+  if (activeModules.has('asb') || activeModules.has('incident') || activeModules.has('multizone') || activeModules.has('crowd')) {
+    const vandalSaving = vandalCost * 0.45; // 45% deterrence effect on vandalism
+    savings.push({ l: 'Vandalism & damage reduction', v: vandalSaving, t: 'green' });
+  }
+
+  // Workplace injury reduction (PPE, forklift, multizone, weapons modules)
+  if (activeModules.has('ppe') || activeModules.has('forklift') || activeModules.has('multizone') || activeModules.has('weapons')) {
+    const injurySaving = injuryCost * 0.40; // 40% injury cost reduction from proactive AI safety monitoring
+    savings.push({ l: 'Workplace injury cost reduction', v: injurySaving, t: 'green' });
+  }
+
+  // False alarm / call-out reduction (smokefire, incident, ANPR modules)
+  if (activeModules.has('smokefire') || activeModules.has('incident') || activeModules.has('anpr')) {
+    const falseSaving = falseAlarm * 0.60; // AI verification cuts false alarms by ~60%
+    savings.push({ l: 'False alarm & call-out costs', v: falseSaving, t: 'green' });
+  }
+
+  // Operational downtime reduction (most modules reduce disruption)
+  if (activeModules.size >= 2) {
+    const downtimeSaving = downtimeCost * 0.35;
+    savings.push({ l: 'Operational downtime reduction', v: downtimeSaving, t: 'green' });
+  }
+
+  // Footfall / revenue uplift (footfall + queue + crowd modules)
+  if (activeModules.has('footfall') || activeModules.has('queue') || activeModules.has('crowd')) {
+    const footfallSaving = revPer * sites * 0.006; // 0.6% revenue uplift from footfall/queue intelligence
+    savings.push({ l: 'Revenue uplift (footfall / queue)', v: footfallSaving, t: 'green' });
+  }
+
+  // ANPR dock / access efficiency
+  if (activeModules.has('anpr')) {
+    const anprSaving = sites * 5200; // Vehicle turnaround, dock efficiency, unauthorised vehicle prevention
+    savings.push({ l: 'ANPR dock & access efficiency', v: anprSaving, t: 'green' });
+  }
+
+  // ASB-specific savings
+  if (activeModules.has('asb')) {
+    const asbSaving = incMgmtCost * 0.25 + sites * 2800; // ASB investigation + response cost reduction
+    savings.push({ l: 'ASB response cost reduction', v: asbSaving, t: 'green' });
+  }
+
+  // Facial recognition savings
+  if (activeModules.has('facialrec')) {
+    const frSaving = secFte * fteCost * 0.10 + sites * 5500;
+    savings.push({ l: 'Access control & ID efficiency', v: frSaving, t: 'green' });
+  }
+
+  // Multi-zone savings
+  if (activeModules.has('multizone')) {
+    const mzSaving = secFte * fteCost * 0.12 + sites * 3800;
+    savings.push({ l: 'Zone monitoring & patrol costs', v: mzSaving, t: 'green' });
+  }
+
+  // Weapons detection savings
+  if (activeModules.has('weapons')) {
+    const wpSaving = sites * 8500 + insCost * (insRed / 100) * 0.4;
+    savings.push({ l: 'Weapons incident avoidance', v: wpSaving, t: 'green' });
+  }
+
+  // Smoke & fire savings
+  if (activeModules.has('smokefire')) {
+    const sfSaving = revPer * sites * 0.008 + falseAlarm * 0.5 + insCost * 0.08;
+    savings.push({ l: 'Fire damage & alarm savings', v: sfSaving, t: 'green' });
+  }
+
+  // Fly-tipping savings
+  if (flyActive) {
+    savings.push({ l: 'Fly-tip clearance avoided',  v: clrSaved,   t: 'blue' });
+    savings.push({ l: 'Enforcement staff time',      v: staffSaved, t: 'blue' });
+    savings.push({ l: 'FPN revenue generated',       v: fpnRev,     t: 'blue' });
+  }
+
+  const totalSaving = savings.reduce((a, b) => a + b.v, 0);
+
+  // ROI
+  const paybackMo = totalSaving > 0 ? y1Cost / (totalSaving / 12) : 999;
+  const net3yr    = (totalSaving * 3) - y1Cost - (ongoing * 2);
+  const roi3yr    = y1Cost > 0 ? (net3yr / (y1Cost + ongoing * 2)) * 100 : 0;
+
+  // ── Only update DOM if on step 3 ──
+  if (currentStep !== 3) return;
+
+  // Config description
+  document.getElementById('results-config-desc').textContent =
+    sites + ' site' + (sites > 1 ? 's' : '') + ' · ' + pkg.label + ' package · ' +
+    activeModules.size + ' model' + (activeModules.size !== 1 ? 's' : '') +
+    (use4G ? ' · ' + cam4gCount + ' × 4G cameras' : '') +
+    (useCustomTraining ? ' · Custom training' : '');
+
+  // KPIs
+  document.getElementById('kpi_y1').textContent      = fmt(y1Cost);
+  document.getElementById('kpi_saving').textContent  = fmt(totalSaving);
+  const pbEl = document.getElementById('kpi_payback');
+  if (paybackMo > 48)      { pbEl.textContent = '>48'; pbEl.className = 'kpi-val red'; }
+  else if (paybackMo > 24) { pbEl.textContent = Math.round(paybackMo); pbEl.className = 'kpi-val gold'; }
+  else                      { pbEl.textContent = Math.round(paybackMo); pbEl.className = 'kpi-val green'; }
+  document.getElementById('kpi_3yr').textContent  = fmt(net3yr);
+  document.getElementById('kpi_3yr').className    = net3yr >= 0 ? 'kpi-sm-val green' : 'kpi-sm-val red';
+  document.getElementById('kpi_roi').textContent  = Math.round(roi3yr) + '%';
+  document.getElementById('kpi_roi').className    = roi3yr >= 0 ? 'kpi-sm-val green' : 'kpi-sm-val red';
+  document.getElementById('kpi_monthly').textContent = fmt(pkg.monthly);
+  document.getElementById('kpi_sub2').textContent = pkg.label + ' package / site/mo';
+
+  // Payback chart
+  const cum = [-y1Cost];
+  for (let y = 2; y <= 5; y++) cum.push(cum[cum.length-1] + totalSaving - ongoing);
+  const allV = [0, ...cum], minV = Math.min(...allV), maxV = Math.max(...allV, 1), range = maxV - minV;
+  const chartH = 80;
+  const ce = document.getElementById('pchart'), le = document.getElementById('pchart_labels');
+  ce.innerHTML = ''; le.innerHTML = '';
+  cum.forEach((v, i) => {
+    const bH  = Math.max(4, Math.round(((v - minV) / range) * chartH));
+    const col = v < 0 ? '#c0392b' : '#1d4ed8';
+    const d   = document.createElement('div');
+    d.className = 'pchart-col';
+    d.innerHTML = `<div class="pchart-bar" style="height:${bH}px;background:${col}"></div>`;
+    ce.appendChild(d);
+    const l = document.createElement('div');
+    l.className = 'pchart-lbl';
+    l.innerHTML = `<div class="pchart-yr">Y${i+1}</div><div class="pchart-amt" style="color:${v<0?'var(--red)':'var(--green)'}">${fmtK(Math.abs(v))}</div>`;
+    le.appendChild(l);
+  });
+
+  // 4G breakdown
+  document.getElementById('fourgresult').style.display = use4G ? 'block' : 'none';
+  document.getElementById('row_4ghw').style.display    = use4G ? 'flex' : 'none';
+  document.getElementById('row_4gapn').style.display   = (use4G && apnOpt === 'yes') ? 'flex' : 'none';
+  if (use4G) {
+    document.getElementById('r4g_hw_sub').textContent    = cam4gCount + ' × £' + camUnitPx + ' (' + cam4gTierK + ')';
+    document.getElementById('r4g_hw').textContent        = fmt(cam4gHw);
+    document.getElementById('r4g_solar_sub').textContent = solarCount + ' kits × £' + CFG.cam4g.solar;
+    document.getElementById('r4g_solar').textContent     = fmt(cam4gSolar);
+    document.getElementById('r4g_install_sub').textContent = cam4gCount + ' × £' + CFG.cam4g.install;
+    document.getElementById('r4g_install').textContent   = fmt(cam4gInst);
+    document.getElementById('apnrow').style.display      = apnOpt === 'yes' ? 'flex' : 'none';
+    document.getElementById('r4g_apn').textContent       = fmt(cam4gApn);
+    document.getElementById('r4g_onetime').textContent   = fmt(cam4gOnetime);
+    document.getElementById('r4g_sim_sub').textContent   = cam4gCount + ' cams × £' + simRate + '/mo × 12 (' + camMode + ')';
+    document.getElementById('r4g_sim').textContent       = fmt(cam4gSimAnn) + '/yr';
+    document.getElementById('r4g_hw_sub').textContent    = cam4gCount + ' × £' + camUnitPx;
+    document.getElementById('r_4ghw_sub').textContent    = cam4gCount + ' cameras, hardware + install';
+    document.getElementById('r_4ghw').textContent        = fmt(cam4gHw + cam4gSolar + cam4gInst);
+    document.getElementById('r_4gapn').textContent       = fmt(cam4gApn);
+  }
+
+  // Fly breakdown
+  document.getElementById('flyresult').style.display = flyActive ? 'block' : 'none';
+  if (flyActive) {
+    document.getElementById('rfly_clr_sub').textContent   = deterred + ' incidents avoided × £' + flyClr;
+    document.getElementById('rfly_clr').textContent       = fmt(clrSaved);
+    document.getElementById('rfly_staff_sub').textContent = Math.round(detected * 2.5 * 0.6) + ' hrs automated @ £' + CFG.fly_officer + '/hr';
+    document.getElementById('rfly_staff').textContent     = fmt(staffSaved);
+    document.getElementById('rfly_fpn_sub').textContent   = fpnIss + ' FPNs × £' + flyFpnV;
+    document.getElementById('rfly_fpn').textContent       = fmt(fpnRev);
+    document.getElementById('rfly_total').textContent     = fmt(flyTotal);
+  }
+
+  // Cost rows
+  document.getElementById('r_lic').textContent        = fmt(annPackage);
+  document.getElementById('r_lic_sub').textContent    = pkg.label + ' package × ' + sites + ' sites × 12mo';
+  document.getElementById('r_mod').textContent        = activeModules.size + ' models included';
+  document.getElementById('r_mod_sub').textContent    = [...activeModules].map(k => CFG.modules[k] ? CFG.modules[k].label : k).join(', ');
+  document.getElementById('r_edge').textContent       = fmt(edgeTotal);
+  document.getElementById('r_edge_sub').textContent   = camsW > 0 ? sites + ' × ' + edgeboxTier + ' IP Camera/NVR AI Edge Box @ £' + edgeboxPrice : 'Not required — 4G/5G cloud cameras only';
+  // Update edge box hint
+  const edgeHint = document.getElementById('edgebox_price_hint');
+  if (edgeHint) {
+    const autoNote = currentPackage === 'standard' ? ' — auto-selected (' + (camsW <= 4 ? '1–4 cameras' : '5–8 cameras') + ')' : '';
+    edgeHint.textContent = '£' + edgeboxPrice.toLocaleString('en-GB') + '/site — ' + edgeboxTier + ' IP Camera/NVR AI Edge Box' + autoNote;
+  }
+  document.getElementById('r_install').textContent    = fmt(installTotal);
+  document.getElementById('r_install_sub').textContent = sites + ' sites @ £' + CFG.install;
+  document.getElementById('r_sup').textContent        = fmt(supportAnn);
+  document.getElementById('r_sup_sub').textContent    = CFG.support_pct + '% of annual package cost';
+  // Custom training row
+  const ctRow = document.getElementById('row_custom_training');
+  if (ctRow) {
+    ctRow.style.display = useCustomTraining ? 'flex' : 'none';
+    const ctAmt = document.getElementById('r_custom_training');
+    if (ctAmt) ctAmt.textContent = fmt(customFee);
+  }
+  document.getElementById('r_total_y1').textContent   = fmt(y1Cost);
+  document.getElementById('r_ongoing').textContent    = fmt(ongoing) + '/yr';
+  document.getElementById('r_ongoing_sub').textContent = use4G ? 'Package + support + SIM data' : 'Package + support';
+  document.getElementById('r_total_saving').textContent = fmt(totalSaving);
+
+  // Savings bars
+  const maxS = Math.max(...savings.map(s => s.v), 1);
+  document.getElementById('savings_bars').innerHTML = savings.map(s => `
+    <div class="sbar-row">
+      <div class="sbar-label">${s.l}</div>
+      <div class="sbar-track"><div class="sbar-fill ${s.t}" style="width:${Math.round(s.v/maxS*100)}%"></div></div>
+      <div class="sbar-val">${fmtK(s.v)}</div>
+    </div>`).join('');
+}
+
+// ── Rate card modal ────────────────────────────────────────────
+function openRateCard() { document.getElementById('rc_overlay').classList.add('visible'); }
+function closeRateCard() { document.getElementById('rc_overlay').classList.remove('visible'); }
+document.getElementById('rc_overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeRateCard();
+});
+
+function rcChanged(el) { el.classList.add('changed'); }
+
+function rcSave() {
+  // Package pricing
+  CFG.packages.standard.monthly    = +document.getElementById('rc_pkg_standard').value    || 850;
+  CFG.packages.standard.maxModules = +document.getElementById('rc_pkg_standard_mods').value || 4;
+  CFG.packages.standard.channels   = +document.getElementById('rc_pkg_standard_ch').value  || 16;
+  CFG.packages.premium.monthly     = +document.getElementById('rc_pkg_premium').value      || 1400;
+  CFG.packages.premium.maxModules  = +document.getElementById('rc_pkg_premium_mods').value  || 8;
+  CFG.packages.premium.channels    = +document.getElementById('rc_pkg_premium_ch').value    || 64;
+  CFG.packages.premiumplus.monthly    = +document.getElementById('rc_pkg_premiumplus').value      || 1800;
+  CFG.packages.premiumplus.maxModules = +document.getElementById('rc_pkg_premiumplus_mods').value  || 8;
+  CFG.packages.premiumplus.channels   = +document.getElementById('rc_pkg_premiumplus_ch').value    || 32;
+  CFG.packages.enterprise.monthly  = +document.getElementById('rc_pkg_enterprise').value   || 2200;
+  CFG.packages.enterprise.maxModules= +document.getElementById('rc_pkg_enterprise_mods').value || 8;
+  CFG.packages.enterprise.channels = +document.getElementById('rc_pkg_enterprise_ch').value || 9999;
+
+  // Custom training fee
+  CFG.customTraining.fee = +document.getElementById('rc_custom_training').value || 1500;
+
+  // 4G hardware
+  CFG.cam4g.budget    = +document.getElementById('rc_cam_budget').value  || 120;
+  CFG.cam4g.mid       = +document.getElementById('rc_cam_mid').value     || 280;
+  CFG.cam4g.pro       = +document.getElementById('rc_cam_pro').value     || 580;
+  CFG.cam4g.anpr      = +document.getElementById('rc_cam_anpr').value    || 750;
+  CFG.cam4g.solar     = +document.getElementById('rc_solar').value       || 180;
+  CFG.cam4g.sim_event = +document.getElementById('rc_sim_event').value   || 8;
+  CFG.cam4g.sim_live  = +document.getElementById('rc_sim_live').value    || 18;
+  CFG.cam4g.apn       = +document.getElementById('rc_apn').value         || 350;
+  CFG.cam4g.install   = +document.getElementById('rc_cam_install').value || 150;
+
+  // Delivery costs
+  CFG.edgebox['4ch']  = +document.getElementById('rc_edgebox_4ch').value  || 500;
+  CFG.edgebox['8ch']  = +document.getElementById('rc_edgebox_8ch').value  || 800;
+  CFG.edgebox['16ch'] = +document.getElementById('rc_edgebox_16ch').value || 1200;
+  CFG.edgebox['32ch'] = +document.getElementById('rc_edgebox_32ch').value || 1800;
+  CFG.install     = +document.getElementById('rc_install').value     || 800;
+  CFG.support_pct = +document.getElementById('rc_support_pct').value || 15;
+
+  // Fly-tipping benchmarks
+  CFG.fly_clr    = +document.getElementById('rc_fly_clr').value    || 850;
+  CFG.fly_officer = +document.getElementById('rc_fly_officer').value || 35;
+  CFG.fpn_low    = +document.getElementById('rc_fpn_low').value    || 400;
+  CFG.fpn_high   = +document.getElementById('rc_fpn_high').value   || 1000;
+
+  // Sync package price cards in the calculator
+  const fmtPkg = n => '£' + n.toLocaleString('en-GB');
+  document.getElementById('pkgprice_standard').innerHTML    = fmtPkg(CFG.packages.standard.monthly)    + '<span>/site/mo</span>';
+  document.getElementById('pkgprice_premium').innerHTML     = fmtPkg(CFG.packages.premium.monthly)     + '<span>/site/mo</span>';
+  document.getElementById('pkgprice_premiumplus').innerHTML = fmtPkg(CFG.packages.premiumplus.monthly) + '<span>/site/mo</span>';
+  document.getElementById('pkgprice_enterprise').innerHTML  = fmtPkg(CFG.packages.enterprise.monthly)  + '<span>/site/mo</span>';
+
+  // Sync custom training fee label
+  document.getElementById('custom_fee_label').textContent =
+    CFG.customTraining.fee.toLocaleString('en-GB');
+
+  // Sync 4G SIM labels
+  document.getElementById('sim_event_price').textContent = CFG.cam4g.sim_event;
+  document.getElementById('sim_live_price').textContent  = CFG.cam4g.sim_live;
+  document.getElementById('apn_price_label').textContent = CFG.cam4g.apn;
+
+  // Sync fly defaults into calculator
+  document.getElementById('fly_clearance').value = CFG.fly_clr;
+  document.getElementById('fly_fpn').value = CFG.fpn_low;
+
+  // Re-apply current package cap (in case maxModules changed)
+  selectPackage(currentPackage);
+
+  // Mark all as saved
+  document.querySelectorAll('.rc-modal input').forEach(i => i.classList.remove('changed'));
+
+  closeRateCard();
+  calc();
+}
+
+function rcReset() {
+  const d = {
+    rc_pkg_standard:850,   rc_pkg_standard_mods:4,  rc_pkg_standard_ch:8,
+    rc_pkg_premium:1400,   rc_pkg_premium_mods:4,   rc_pkg_premium_ch:16,
+    rc_pkg_premiumplus:1800, rc_pkg_premiumplus_mods:8, rc_pkg_premiumplus_ch:32,
+    rc_pkg_enterprise:2200, rc_pkg_enterprise_mods:8, rc_pkg_enterprise_ch:9999,
+    rc_custom_training:1500,
+    rc_cam_budget:120, rc_cam_mid:280, rc_cam_pro:580, rc_cam_anpr:750, rc_solar:180,
+    rc_sim_event:8, rc_sim_live:18, rc_apn:350, rc_cam_install:150,
+    rc_edgebox_4ch:500, rc_edgebox_8ch:800, rc_edgebox_16ch:1200, rc_edgebox_32ch:1800, rc_install:800, rc_support_pct:15,
+    rc_fly_clr:850, rc_fpn_low:400, rc_fpn_high:1000, rc_fly_officer:35
+  };
+  Object.entries(d).forEach(([k, v]) => {
+    const el = document.getElementById(k);
+    if (el) { el.value = v; el.classList.remove('changed'); }
+  });
+}
+
+function rcExport() {
+  rcSave();
+  const blob = new Blob([JSON.stringify(CFG, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'fortix_rate_card.json';
+  a.click();
+}
+
+// ── Init ───────────────────────────────────────────────────────
+goStep(1);
+selectPackage('standard');
+applyIndustryBenchmarks('public'); // default industry
+document.getElementById('flybox').classList.add('visible');
+document.getElementById('mod_count').textContent = activeModules.size;
+</script>
+</body>
+</html>
