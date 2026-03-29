@@ -71,24 +71,10 @@ body {
 .logo {
   display: flex;
   align-items: center;
-  gap: 10px;
   text-decoration: none;
 }
-.logo-mark {
-  width: 32px; height: 32px;
-  background: var(--green);
-  border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
-.logo-mark svg { width: 18px; height: 18px; }
-.logo-name {
-  font-size: 16px;
-  font-weight: 700;
-  color: #fff;
-  letter-spacing: -.01em;
-}
-.logo-name span { color: var(--green); }
+.logo-mark { display: none; }
+.logo-name  { display: none; }
 .topbar-right {
   display: flex;
   align-items: center;
@@ -771,13 +757,7 @@ input[type=range] {
 <!-- Top bar -->
 <div class="topbar">
   <div class="logo">
-    <div class="logo-mark">
-      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 3L4 7.5V16.5L12 21L20 16.5V7.5L12 3Z" fill="rgba(255,255,255,.15)" stroke="white" stroke-width="1.5"/>
-        <path d="M12 8L8 10.5V15.5L12 18L16 15.5V10.5L12 8Z" fill="white"/>
-      </svg>
-    </div>
-    <span class="logo-name">Fortix <span>AI</span></span>
+    <img src="https://fortixai.lovable.app/assets/fortix-logo-CMBDPoW8.png" alt="Fortix AI" style="height:28px;width:auto;filter:brightness(0) invert(1);">
   </div>
   <div class="topbar-right">
     <span class="topbar-label">ROI Calculator</span>
